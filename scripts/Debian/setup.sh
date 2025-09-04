@@ -1,25 +1,21 @@
 #!/bin/bash
 
-# RAG Assistant Setup Script for Fedora
-# This script sets up the project from within the project directory
+# RAG Assistant Dependency Installer for Debian/Ubuntu
+# This script installs system dependencies from within the project directory
 
 set -e  # Exit on any error
 
-echo "🤖 RAG Assistant Setup Script for Fedora"
-echo "========================================"
+echo "🤖 RAG Assistant Dependency Installer for Debian/Ubuntu"
+echo "======================================================="
 echo "Running from: $(pwd)"
-echo "========================================"
-
-# Function to check if a command exists
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
+echo "======================================================="
 
 # Check if Python is installed and meets version requirement
 echo "Checking Python version..."
-if ! command_exists python3; then
+if ! command -v python3 &> /dev/null; then
     echo "❌ Python 3 is not installed. Installing Python 3..."
-    sudo dnf install -y python3
+    sudo apt update
+    sudo apt install -y python3 python3-venv python3-pip
 fi
 
 PYTHON_VERSION=$(python3 --version | cut -d' ' -f2)
@@ -32,40 +28,59 @@ else
     exit 1
 fi
 
-# Create virtual environment
-echo "Creating virtual environment..."
-python3 -m venv venv
+# Update package list
+echo "Updating package list..."
+sudo apt update
 
-# Activate virtual environment
-echo "Activating virtual environment..."
-source venv/bin/activate
+# Install Tesseract OCR and language packs
+echo "Installing Tesseract OCR and language packs for Debian/Ubuntu..."
+sudo apt install -y tesseract-ocr \
+    tesseract-ocr-ara \
+    tesseract-ocr-fra \
+    tesseract-ocr-eng
 
-# Setup Groq API key
-echo "Setting up Groq API key..."
-read -p "Enter your Groq API key: " API_KEY
-if [ -z "$API_KEY" ]; then
-    echo "⚠️  No API key provided. You'll need to set this up manually later."
+# Install other build dependencies
+echo "Installing additional development tools..."
+sudo apt install -y python3-dev \
+    build-essential \
+    libssl-dev \
+    libffi-dev
+
+# Verify Tesseract installation
+echo "Verifying Tesseract installation..."
+TESSERACT_VERSION=$(tesseract --version | head -n1)
+if [ $? -eq 0 ]; then
+    echo "✅ Tesseract installed: $TESSERACT_VERSION"
 else
-    echo "$API_KEY" | sudo tee /etc/groq_API.txt > /dev/null
-    sudo chmod 600 /etc/groq_API.txt
-    echo "✅ API key saved to /etc/groq_API.txt"
+    echo "❌ Tesseract installation failed"
+    exit 1
 fi
 
-# Final setup
+# Verify language packs are installed
+echo "Checking installed Tesseract languages..."
+INSTALLED_LANGS=$(tesseract --list-langs)
+for lang in ara fra eng; do
+    if echo "$INSTALLED_LANGS" | grep -q "$lang"; then
+        echo "✅ $lang language pack installed"
+    else
+        echo "❌ $lang language pack not found"
+    fi
+done
+
 echo ""
-echo "========================================"
-echo "✅ Fedora setup completed successfully!"
+echo "======================================================="
+echo "✅ Debian/Ubuntu dependencies installed successfully!"
 echo ""
-echo "Virtual environment: venv/"
-echo "Project ready in: $(pwd)"
-echo ""
-echo "To activate the virtual environment:"
+echo "Next steps:"
+echo "1. Create a virtual environment:"
+echo "   python3 -m venv venv"
+echo "2. Activate the virtual environment:"
 echo "   source venv/bin/activate"
-echo ""
-echo "To run the application:"
-echo "   python engine.py"
-echo ""
-echo "Note: If you didn't provide an API key, make sure to:"
-echo "   echo 'your_api_key' | sudo tee /etc/groq_API.txt"
+echo "3. Install Python dependencies:"
+echo "   pip install -r requirements.txt"
+echo "4. Set up your Groq API key:"
+echo "   echo 'your_api_key_here' | sudo tee /etc/groq_API.txt"
 echo "   sudo chmod 600 /etc/groq_API.txt"
-echo "========================================"
+echo "5. Run the application:"
+echo "   python engine.py"
+echo "======================================================="
