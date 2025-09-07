@@ -1,6 +1,6 @@
 from sentence_transformers import SentenceTransformer
 import sqlite3
-import subprocess
+import os
 import faiss
 import numpy as np
 import file_loader
@@ -31,8 +31,8 @@ def embeddings(question):
         return ""
     index, contents = refresh_index()
     
-    if index == None:
-        return None
+    if index is None:
+        return []
     
     _, indices = index.search(np.array([question_embedding]), 3)
 
@@ -74,7 +74,9 @@ def refresh_index():
     embedding_matrix = np.array(embeddings).astype("float32")
 
     if len(embeddings) == 0:
+        connect.close()
         return None, []
+
 
     print("Embedding matrix shape:", embedding_matrix.shape)
     
