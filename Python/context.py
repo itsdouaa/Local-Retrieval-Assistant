@@ -1,5 +1,6 @@
 from sentence_transformers import SentenceTransformer
 import sqlite3
+import subprocess
 import faiss
 import numpy as np
 import file_loader
@@ -40,8 +41,22 @@ def embeddings(question):
     return "\n\n".join(selected) if selected else None
 
 def refresh_index():
-    connect = sqlite3.connect("/home/douaa/assistant/test.db")
+    db_path = os.path.expanduser("~/local_retrieval_assistant/test.db")
+
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    if not os.path.exists(db_path):
+        open(db_path, "w").close()
+
+    connect = sqlite3.connect(db_path)
     cursor = connect.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS dict (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            content TEXT,
+            tags TEXT
+        )
+    """)
     cursor.execute("SELECT id, content FROM dict")
     rows = cursor.fetchall()
     
