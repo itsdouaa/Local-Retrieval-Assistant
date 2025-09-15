@@ -86,16 +86,27 @@ Adjust retrieval settings - Modify the number of retrieved results in context.py
 ---------------------------------------------------------------------
 
 src/
+
 ├── db.py              # Database management and operations
+
 ├── groq_key.py        # Secure API key retrieval
+
 ├── groq_API.py        # Groq API integration
+
 ├── context.py         # Context management & semantic retrieval
+
 ├── file_to_dict.py    # File processing for various formats
+
 ├── file_loader.py     # GUI file selection dialog
+
 ├── Tags.py            # Automated keyword/tag generation
+
 ├── stopwords.txt      # Multilingual stop words list
+
 ├── engine.py          # Main application engine
+
 └── requirements.txt   # Python dependencies
+
 
 ---------------------------------------------------------------------
 
