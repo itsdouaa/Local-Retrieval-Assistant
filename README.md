@@ -44,16 +44,27 @@ yes  # (opens a file selection dialog)
 ---------------------------------------------------------------------
 
 local_retrieval_assistant/
+
 ├── Fedora/ # Fedora Linux version
+
 │ ├── scripts/ # Fedora-specific setup scripts
+
 │ └── src/ # Fedora-specific source code
+
 ├── Ubuntu/ # Ubuntu/Debian version
+
 │ ├── scripts/ # Ubuntu-specific setup scripts
+
 │ └── src/ # Ubuntu-specific source code
+
 ├── Windows/ # Windows version
+
 │ ├── scripts/ # Windows-specific setup scripts
+
 │ └── src/ # Windows-specific source code
+
 ├── setup_guide.txt # General setup instructions
+
 └── test.db # Shared database file
 
 ---------------------------------------------------------------------
