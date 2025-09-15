@@ -1,32 +1,31 @@
 # Local-Retrieval-Assistant
+
 This is a Retrieval-Augmented Generation (RAG) system built in Python, designed to answer user questions by retrieving relevant context from a database of documents and generating answers using a Large Language Model (LLAMA 4 via Groq's API).
 
+## ✨ Features
 
-✨ Features
+- **Multilingual Support**: Works seamlessly with Arabic, English, and French content
+- **Multiple File Format Support**: Process PDF, DOCX, TXT, DOC, and images (with OCR capabilities)
+- **Semantic Search**: Advanced embedding-based retrieval using FAISS
+- **Easy-to-Use Interface**: Simple command-line interaction
+- **Secure API Handling**: Protected API key management
+- **Automatic Tagging**: Intelligent keyword extraction from content
+- **Cross-Platform**: Available for Fedora, Ubuntu, and Windows
 
-Multilingual Support: Works seamlessly with Arabic, English, and French content
-
-Multiple File Format Support: Process PDF, DOCX, TXT, DOC, and images (with OCR capabilities)
-
-Semantic Search: Advanced embedding-based retrieval using FAISS
-
-Easy-to-Use Interface: Simple command-line interaction
-
-Secure API Handling: Protected API key management
-
-Automatic Tagging: Intelligent keyword extraction from content
+## 📁 Project Structure
 
 
 📦 Installation
 
 Prerequisites and Setup
-Make sure to run the script : dependencies.sh  setup.sh
+See setup_guide.txt
 
 
 🚀 Usage
 
-Start the application:
-By running the command: "python engine.py" in the installation folder
+After running the setup script for your platform, navigate to the src/ folder and run:
+
+python engine.py
 
 Example interaction:
 ---------------------------------------------------------------------
@@ -44,32 +43,33 @@ yes  # (opens a file selection dialog)
 
 ---------------------------------------------------------------------
 
-assistant/
-
-├── db.py              # Database management and operations
-
-├── groq_key.py        # Secure API key retrieval
-
-├── groq_API.py        # Groq API integration
-
-├── context.py         # Context management & semantic retrieval
-
-├── file_to_dict.py    # File processing for various formats
-
-├── file_loader.py     # GUI file selection dialog
-
-├── Tags.py            # Automated keyword/tag generation
-
-├── stopwords.txt      # Multilingual stop words list
-
-├── engine.py          # Main application engine
-
-└── requirements.txt   # Python dependencies
+local_retrieval_assistant/
+├── Fedora/ # Fedora Linux version
+│ ├── scripts/ # Fedora-specific setup scripts
+│ └── src/ # Fedora-specific source code
+├── Ubuntu/ # Ubuntu/Debian version
+│ ├── scripts/ # Ubuntu-specific setup scripts
+│ └── src/ # Ubuntu-specific source code
+├── Windows/ # Windows version
+│ ├── scripts/ # Windows-specific setup scripts
+│ └── src/ # Windows-specific source code
+├── setup_guide.txt # General setup instructions
+└── test.db # Shared database file
 
 ---------------------------------------------------------------------
 
 
-🔧 Configuration
+🔧 Platform-Specific Source Code
+
+Each operating system has its own optimized version in the respective folder:
+
+Fedora/src/: Linux-optimized code for Fedora systems
+
+Ubuntu/src/: Linux-optimized code for Ubuntu/Debian systems
+
+Windows/src/: Windows-optimized code with proper path handling
+
+⚙️ Configuration
 
 Customizing Behavior
 You can customize various aspects of the system:
@@ -79,6 +79,25 @@ Modify stop words - Edit stopwords.txt to add/remove words to ignore during tagg
 Change embedding model - Update the model in context.py (currently using all-MiniLM-L6-v2)
 
 Adjust retrieval settings - Modify the number of retrieved results in context.py (currently 3)
+
+
+📋 Core Components (Each Platform)
+
+---------------------------------------------------------------------
+
+src/
+├── db.py              # Database management and operations
+├── groq_key.py        # Secure API key retrieval
+├── groq_API.py        # Groq API integration
+├── context.py         # Context management & semantic retrieval
+├── file_to_dict.py    # File processing for various formats
+├── file_loader.py     # GUI file selection dialog
+├── Tags.py            # Automated keyword/tag generation
+├── stopwords.txt      # Multilingual stop words list
+├── engine.py          # Main application engine
+└── requirements.txt   # Python dependencies
+
+---------------------------------------------------------------------
 
 
 📁 Supported File Formats
@@ -109,7 +128,7 @@ OCR: Tesseract for text extraction from images
 File Processing: PyMuPDF (PDFs), python-docx (DOCX), Mammoth (DOC)
 
 
-⚙️ How It Works
+🔧 How It Works
 
 Knowledge Base Construction: Users add documents through a graphical file dialog
 
@@ -169,5 +188,8 @@ User authentication and knowledge base separation
 
 Enhanced multilingual support for more languages
 
+---------------------------------------------------------------------
 
 Note: This application requires an internet connection to access the Groq API for processing queries.
+
+
