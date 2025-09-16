@@ -1,0 +1,29 @@
+#setup_guide
+
+
+Ubuntu/Debian:
+
+bash:
+
+chmod +x setup_ubuntu.sh
+./setup_ubuntu.sh
+
+
+Fedora:
+
+bash:
+
+chmod +x setup.sh
+./setup.sh
+
+
+Windows:
+
+powershell:
+
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+.\setup.ps1
+
+batch:
+
+setup.bat
