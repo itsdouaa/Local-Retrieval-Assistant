@@ -1,4 +1,5 @@
 #Local-Retrieval-Assistant
+
 Système de RAG (Retrieval-Augmented Generation) construit en Python, conçu pour répondre aux questions des utilisateurs en récupérant le contexte pertinent depuis une base de données de documents et en générant des réponses utilisant un modèle de langage large (LLAMA 4 via l'API Groq).
 
 
