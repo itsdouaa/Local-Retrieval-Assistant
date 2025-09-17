@@ -2,7 +2,7 @@
 Système de RAG (Retrieval-Augmented Generation) construit en Python, conçu pour répondre aux questions des utilisateurs en récupérant le contexte pertinent depuis une base de données de documents et en générant des réponses utilisant un modèle de langage large (LLAMA 4 via l'API Groq).
 
 
-✨ Fonctionnalités
+##✨ Fonctionnalités
 
 -Support multilingue : Fonctionne avec le contenu arabe, anglais et français
 -Support multi-formats : Traite PDF, DOCX, TXT, DOC et images (avec OCR)
@@ -13,7 +13,7 @@ Système de RAG (Retrieval-Augmented Generation) construit en Python, conçu pou
 -Multi-plateforme : Support complet Fedora, Ubuntu et Windows
 
 
-📁 Structure du Projet
+##📁 Structure du Projet
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -123,11 +123,11 @@ local_retrieval_assistant/
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-📦 Installation
+##📦 Installation
 
 Choisissez votre plateforme :
 
-🐧 Pour Fedora :
+###🐧 Pour Fedora :
 
 bash
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -135,7 +135,8 @@ cd local_retrieval_assistant/Fedora/scripts
 chmod +x setup.sh
 ./setup.sh
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-🐧 Pour Ubuntu/Debian :
+
+###🐧 Pour Ubuntu/Debian :
 
 bash
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -143,7 +144,8 @@ cd local_retrieval_assistant/Ubuntu/scripts
 chmod +x setup.sh
 ./setup.sh
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-🪟 Pour Windows :
+
+###🪟 Pour Windows :
 
 PowerShell :
 
@@ -162,7 +164,7 @@ setup.bat
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-🚀 Utilisation
+##🚀 Utilisation
 
 Après l'installation, naviguez dans le dossier src/ de votre plateforme et lancez :
 
@@ -186,9 +188,9 @@ yes  # (ouvre une boîte de dialogue de sélection de fichier)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-🔧 Architecture Technique
+##🔧 Architecture Technique
 
-Code Spécifique vs Code Commun
+###Code Spécifique vs Code Commun
 src_common/ : Contient le code universel (90% de l'application)
 [OS]/src/ : Contient les adaptations spécifiques à chaque OS (10%)
 
@@ -211,7 +213,7 @@ OCR : Tesseract pour l'extraction texte depuis images
 
 Traitement fichiers : PyMuPDF (PDF), python-docx (DOCX), Mammoth (DOC)
 
-Formats de Fichiers Supportés
+###Formats de Fichiers Supportés
 
 Texte : .txt
 Documents : .docx, .doc
@@ -219,12 +221,12 @@ PDFs : .pdf
 Images : .jpg, .jpeg, .png (avec OCR)
 
 
-📖 Documentation
+##📖 Documentation
 
 La documentation complète est disponible dans le dossier docs/
 
 
-🤝 Contribution
+##🤝 Contribution
 
 Les contributions sont les bienvenues ! Voici comment procéder :
 
@@ -235,7 +237,7 @@ Les contributions sont les bienvenues ! Voici comment procéder :
 -Ouvrez une Pull Request
 
 
-🐛 Support
+##🐛 Support
 
 Si vous rencontrez des problèmes :
 
@@ -248,12 +250,12 @@ Si vous rencontrez des problèmes :
     Comportement attendu vs observé
 
 
-📄 Licence
+##📄 Licence
 
 Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
 
 
-🚀 Améliorations Futures
+##🚀 Améliorations Futures
 
 -Interface web pour une interaction plus facile
 -Support de formats de fichiers supplémentaires
