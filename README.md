@@ -1,217 +1,205 @@
-# Local-Retrieval-Assistant
 
-This is a Retrieval-Augmented Generation (RAG) system built in Python, designed to answer user questions by retrieving relevant context from a database of documents and generating answers using a Large Language Model (LLAMA 4 via Groq's API).
+Local-Retrieval-Assistant
+Système de RAG (Retrieval-Augmented Generation) construit en Python, conçu pour répondre aux questions des utilisateurs en récupérant le contexte pertinent depuis une base de données de documents et en générant des réponses utilisant un modèle de langage large (LLAMA 4 via l'API Groq).
 
-## ✨ Features
+✨ Fonctionnalités
+Support multilingue : Fonctionne avec le contenu arabe, anglais et français
 
-- **Multilingual Support**: Works seamlessly with Arabic, English, and French content
-- **Multiple File Format Support**: Process PDF, DOCX, TXT, DOC, and images (with OCR capabilities)
-- **Semantic Search**: Advanced embedding-based retrieval using FAISS
-- **Easy-to-Use Interface**: Simple command-line interaction
-- **Secure API Handling**: Protected API key management
-- **Automatic Tagging**: Intelligent keyword extraction from content
-- **Cross-Platform**: Available for Fedora, Ubuntu, and Windows
+Support multi-formats : Traite PDF, DOCX, TXT, DOC et images (avec OCR)
 
-## 📁 Project Structure
+Recherche sémantique : Récupération par embedding avec FAISS
 
+Interface simple : Interaction en ligne de commande intuitive
 
+Gestion sécurisée des API : Protection des clés API
+
+Tagging automatique : Extraction intelligente de mots-clés
+
+Multi-plateforme : Support complet Fedora, Ubuntu et Windows
+
+📁 Structure du Projet
+text
+local_retrieval_assistant/
+│
+├── 📁 Fedora/                          # Version spécifique Fedora
+│   ├── 📁 scripts/
+│   │   └── 📄 setup.sh                 # Script d'installation unique
+│   └── 📁 src/
+│       ├── 📄 Tags.py                  # Génération de tags (spécifique Fedora)
+│       ├── 📄 context.py               # Gestion du contexte (spécifique Fedora)
+│       ├── 📄 db.py                    # Base de données (spécifique Fedora)
+│       └── 📄 groq_key.py              # Lecture clé API (spécifique Fedora)
+│
+├── 📁 Ubuntu/                          # Version spécifique Ubuntu
+│   ├── 📁 scripts/
+│   │   └── 📄 setup.sh                 # Script d'installation unique
+│   └── 📁 src/
+│       ├── 📄 Tags.py                  # Génération de tags (spécifique Ubuntu)
+│       ├── 📄 context.py               # Gestion du contexte (spécifique Ubuntu)
+│       ├── 📄 db.py                    # Base de données (spécifique Ubuntu)
+│       └── 📄 groq_key.py              # Lecture clé API (spécifique Ubuntu)
+│
+├── 📁 Windows/                         # Version spécifique Windows
+│   ├── 📁 scripts/
+│   │   ├── 📄 setup.ps1                # Script PowerShell
+│   │   └── 📄 setup.bat                # Script CMD
+│   └── 📁 src/
+│       ├── 📄 Tags.py                  # Génération de tags (spécifique Windows)
+│       ├── 📄 context.py               # Gestion du contexte (spécifique Windows)
+│       ├── 📄 db.py                    # Base de données (spécifique Windows)
+│       └── 📄 groq_key.py              # Lecture clé API (spécifique Windows)
+│
+├── 📁 src_common/                      # Code commun à toutes les plateformes
+│   ├── 📄 engine.py                    # Moteur principal
+│   ├── 📄 file_loader.py               # Chargement de fichiers
+│   ├── 📄 file_to_dict.py              # Conversion fichiers→dict
+│   ├── 📄 groq_API.py                  # Intégration API Groq
+│   └── 📄 stopwords.txt                # Liste de mots vides
+│
+├── 📁 docs/                            # Documentation complète
+│   ├── 📁 configuration/               # Guides de configuration
+│   ├── 📁 development/                 # Développement et contribution
+│   ├── 📁 examples/                    # Exemples d'utilisation
+│   ├── 📁 faq/                         # Questions fréquentes
+│   ├── 📁 installation/                # Guides d'installation
+│   ├── 📁 platform_differences/        # Différences entre plateformes
+│   ├── 📁 troubleshooting/             # Dépannage et résolution
+│   ├── 📁 tutorials/                   # Tutoriels pas à pas
+│   └── 📁 usage/                       # Guides d'utilisation
+│
+├── 📄 .gitignore
+├── 📄 LICENSE
+├── 📄 README.md
+└── 📄 setup_guide.txt
 📦 Installation
+Choisissez votre plateforme :
+🐧 Pour Fedora :
+bash
+cd local_retrieval_assistant/Fedora/scripts
+chmod +x setup.sh
+./setup.sh
+🐧 Pour Ubuntu/Debian :
+bash
+cd local_retrieval_assistant/Ubuntu/scripts
+chmod +x setup.sh
+./setup.sh
+🪟 Pour Windows :
+PowerShell :
 
-Prerequisites and Setup
-See setup_guide.txt
+powershell
+cd local_retrieval_assistant\Windows\scripts
+.\setup.ps1
+Invite de commande :
 
+batch
+cd local_retrieval_assistant\Windows\scripts
+setup.bat
+🚀 Utilisation
+Après l'installation, naviguez dans le dossier src/ de votre plateforme et lancez :
 
-🚀 Usage
-
-After running the setup script for your platform, navigate to the src/ folder and run:
-
+bash
+cd ../src
 python engine.py
+Exemple d'interaction :
 
-Example interaction:
----------------------------------------------------------------------
+text
 Ask Your Question: 
-What are the main benefits of artificial intelligence?
+Quels sont les avantages principaux de l'intelligence artificielle ?
 
 Do you want to add some context/files?
-yes  # (opens a file selection dialog)
+yes  # (ouvre une boîte de dialogue de sélection de fichier)
 
-... (system processes files and provides response)
----------------------------------------------------------------------
+... (le système traite les fichiers et fournit une réponse)
+🔧 Architecture Technique
+Code Spécifique vs Code Commun
+src_common/ : Contient le code universel (90% de l'application)
 
+[OS]/src/ : Contient les adaptations spécifiques à chaque OS (10%)
 
-📁 Project Structure
+Gestion des chemins de fichiers différents
 
----------------------------------------------------------------------
+Configuration spécifique à chaque plateforme
 
-local_retrieval_assistant/
+Optimisations performances par OS
 
-├── Fedora/ # Fedora Linux version
+Technologies Principales
+Modèle de langage : LLAMA 4 Scout 17B via API Groq
 
-│ ├── scripts/ # Fedora-specific setup scripts
+Embeddings : sentence-transformers/all-MiniLM-L6-v2
 
-│ └── src/ # Fedora-specific source code
+Recherche vectorielle : FAISS pour la similarité sémantique
 
-├── Ubuntu/ # Ubuntu/Debian version
+Base de données : SQLite pour le stockage
 
-│ ├── scripts/ # Ubuntu-specific setup scripts
+OCR : Tesseract pour l'extraction texte depuis images
 
-│ └── src/ # Ubuntu-specific source code
+Traitement fichiers : PyMuPDF (PDF), python-docx (DOCX), Mammoth (DOC)
 
-├── Windows/ # Windows version
+Formats de Fichiers Supportés
+Texte : .txt
 
-│ ├── scripts/ # Windows-specific setup scripts
+Documents : .docx, .doc
 
-│ └── src/ # Windows-specific source code
+PDFs : .pdf
 
-├── setup_guide.txt # General setup instructions
+Images : .jpg, .jpeg, .png (avec OCR)
 
-└── test.db # Shared database file
+📖 Documentation
+La documentation complète est disponible dans le dossier docs/ :
 
----------------------------------------------------------------------
+/docs/installation/ : Guides d'installation détaillés par plateforme
 
+/docs/usage/ : Guides d'utilisation et fonctionnalités avancées
 
-🔧 Platform-Specific Source Code
+/docs/troubleshooting/ : Résolution des problèmes spécifiques
 
-Each operating system has its own optimized version in the respective folder:
+/docs/development/ : Guide pour contributeurs
 
-Fedora/src/: Linux-optimized code for Fedora systems
+🤝 Contribution
+Les contributions sont les bienvenues ! Voici comment procéder :
 
-Ubuntu/src/: Linux-optimized code for Ubuntu/Debian systems
+Forkez le projet
 
-Windows/src/: Windows-optimized code with proper path handling
+Créez une branche (git checkout -b feature/ma-fonctionnalite)
 
-⚙️ Configuration
+Commitez vos changements (git commit -m 'Ajout ma fonctionnalité')
 
-Customizing Behavior
-You can customize various aspects of the system:
+Pushez la branche (git push origin feature/ma-fonctionnalite)
 
-Modify stop words - Edit stopwords.txt to add/remove words to ignore during tagging
+Ouvrez une Pull Request
 
-Change embedding model - Update the model in context.py (currently using all-MiniLM-L6-v2)
+🐛 Support
+Si vous rencontrez des problèmes :
 
-Adjust retrieval settings - Modify the number of retrieved results in context.py (currently 3)
+Consultez la documentation dans docs/troubleshooting/
 
+Vérifiez les issues existantes sur GitHub
 
-📋 Core Components (Each Platform)
+Créez une nouvelle issue avec des détails complets :
 
----------------------------------------------------------------------
+Plateforme et version OS
 
-src/
+Étapes pour reproduire le problème
 
-├── db.py              # Database management and operations
+Messages d'erreur complets
 
-├── groq_key.py        # Secure API key retrieval
+Comportement attendu vs observé
 
-├── groq_API.py        # Groq API integration
+📄 Licence
+Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
 
-├── context.py         # Context management & semantic retrieval
+🚀 Améliorations Futures
+Interface web pour une interaction plus facile
 
-├── file_to_dict.py    # File processing for various formats
+Support de formats de fichiers supplémentaires
 
-├── file_loader.py     # GUI file selection dialog
+Traitement par lots de multiples fichiers
 
-├── Tags.py            # Automated keyword/tag generation
+Fonctionnalité d'export des conversations
 
-├── stopwords.txt      # Multilingual stop words list
+Authentification utilisateur et séparation des bases de connaissances
 
-├── engine.py          # Main application engine
+Support multilingue étendu
 
-└── requirements.txt   # Python dependencies
-
-
----------------------------------------------------------------------
-
-
-📁 Supported File Formats
-
-Text: .txt
-
-Documents: .docx, .doc
-
-PDFs: .pdf
-
-Images: .jpg, .jpeg, .png (with OCR text extraction)
-
-
-🛠️ Technical Details
-
-Core Technologies
-
-Language Model: LLAMA 4 Scout 17B via Groq API
-
-Embeddings: sentence-transformers/all-MiniLM-L6-v2
-
-Vector Search: FAISS for efficient similarity search
-
-Database: SQLite for content storage
-
-OCR: Tesseract for text extraction from images
-
-File Processing: PyMuPDF (PDFs), python-docx (DOCX), Mammoth (DOC)
-
-
-🔧 How It Works
-
-Knowledge Base Construction: Users add documents through a graphical file dialog
-
-Content Processing: Text is extracted, tagged, and stored in the database with embeddings
-
-Query Processing: User questions are converted to embeddings and compared with stored content
-
-Context Retrieval: The most relevant content is retrieved using semantic similarity
-
-Response Generation: LLAMA 4 generates answers based on the retrieved context
-
-
-📄 License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-
-🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
-
-Fork the project
-
-Create your feature branch (git checkout -b feature/AmazingFeature)
-
-Commit your changes (git commit -m 'Add some AmazingFeature')
-
-Push to the branch (git push origin feature/AmazingFeature)
-
-Open a Pull Request
-
-
-📞 Support
-
-If you encounter any issues or have questions:
-
-Check the existing issues
-
-Create a new issue with detailed information about your problem
-
-Include steps to reproduce, expected behavior, and actual behavior
-
-
-🚀 Future Enhancements
-
-Potential improvements for future versions:
-
-Web interface for easier interaction
-
-Additional file format support
-
-Batch processing of multiple files
-
-Export functionality for conversations
-
-User authentication and knowledge base separation
-
-Enhanced multilingual support for more languages
-
----------------------------------------------------------------------
-
-Note: This application requires an internet connection to access the Groq API for processing queries.
-
-
+Note : Cette application nécessite une connexion internet pour accéder à l'API Groq.
+Note : Chaque plateforme a sa version optimisée - utilisez le dossier approprié pour votre OS.
