@@ -1,1 +1,190 @@
+# Fichier .gitignore pour Local-Retrieval-Assistant
 
+# ⚠️ Fichiers sensibles - NE JAMAIS COMMITER
+# --------------------------------------------------
+groq_API.txt               # Clé API (Windows)
+/etc/groq_API.txt          # Clé API (Linux) - prévention
+*.key
+*.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+config_secret.py
+
+# 🗄️ Bases de données
+# --------------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+test.db                    # Votre base de données principale
+*.db-journal
+*.db-wal
+*.db-shm
+
+# 🐍 Python
+# --------------------------------------------------
+# Environnements virtuels
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# 📦 Installateurs et packages
+# --------------------------------------------------
+# Installer packages
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# 📝 Fichiers de l'éditeur
+# --------------------------------------------------
+# VS Code
+.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-*
+
+# 📊 Fichiers de données et cache
+# --------------------------------------------------
+# Cache Python
+.pytest_cache/
+.mypy_cache/
+.python-version
+
+# Fichiers temporaires
+*.tmp
+*.temp
+*.log
+*.log.*
+logs/
+
+# Fichiers de sauvegarde
+*.bak
+*.backup
+*.old
+
+# 📈 Métriques et coverage
+# --------------------------------------------------
+.coverage
+.coverage.*
+htmlcov/
+.coverage
+.pytest_cache/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+
+# 🖼️ Fichiers multimédias et documents
+# --------------------------------------------------
+# Fichiers uploadés par les utilisateurs (exemples)
+uploads/
+downloads/
+*.pdf
+*.docx
+*.doc
+*.txt
+*.jpg
+*.jpeg
+*.png
+
+# 🐛 Debug et profilage
+# --------------------------------------------------
+# Fichiers de debug
+debug*.py
+profile*.py
+
+# Fichiers de profilage
+*.prof
+*.line_profiler
+
+# 🔧 OS et système
+# --------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# 🗃️ Autres
+# --------------------------------------------------
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Unity
+*.unityproj
+*.mat
+*.asset
+
+# JetBrains IDEs
+.idea/
+
+# 📋 Fichiers spécifiques au projet
+# --------------------------------------------------
+# Fichiers de configuration locaux
+config_local.py
+settings_local.py
+
+# Fichiers de tests temporaires
+test_*.py
+temp_*
+
+# Dossiers de déploiement
+deploy/
+build/
+
+# 📝 Notes personnelles
+# --------------------------------------------------
+notes.txt
+todo.txt
+*.md~
