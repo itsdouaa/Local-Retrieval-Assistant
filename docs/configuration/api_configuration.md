@@ -50,18 +50,18 @@ Le script vous demandera votre clé API et la configurera automatiquement.
 Sur Linux :(bash)
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------
-# Créer le fichier avec votre clé
+#### Créer le fichier avec votre clé
 echo "votre_clé_api_ici" | sudo tee /etc/groq_API.txt
 
-# Sécuriser les permissions
+#### Sécuriser les permissions
 sudo chmod 600 /etc/groq_API.txt
 
-# Vérifier la configuration
+#### Vérifier la configuration
 sudo cat /etc/groq_API.txt
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Sur Windows :
+Sur Windows :
 
 1. Créez un fichier groq_API.txt dans le dossier src/
 2.Collez votre clé API dans le fichier
@@ -105,14 +105,12 @@ except Exception as e:
 
 ### Erreur: "API key not found"
 Solution :
-bash
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------
-# Vérifiez l'emplacement du fichier
-# Linux : /etc/groq_API.txt
-# Windows : groq_API.txt dans le dossier src/
-
-# Vérifiez les permissions (Linux)
+#### Vérifiez l'emplacement du fichier
+#### Linux : /etc/groq_API.txt
+#### Windows : groq_API.txt dans le dossier src/
+#### Vérifiez les permissions (Linux)
 ls -la /etc/groq_API.txt
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -142,17 +140,17 @@ Solution :
 Modifiez groq_API.py :
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------
-# Changer le modèle (options disponibles)
+#### Changer le modèle (options disponibles)
 completion = client.chat.completions.create(
     model="meta-llama/llama-4-scout-17b-16e-instruct",  # ← Modifier ici
     # Autres paramètres...
 )
 
-# Modèles disponibles :
-# - "meta-llama/llama-4-scout-17b-16e-instruct" (par défaut)
-# - "mixtral-8x7b-32768"
-# - "gemma-7b-it"
-# - "llama3-70b-8192"
+#### Modèles disponibles :
+- "meta-llama/llama-4-scout-17b-16e-instruct" (par défaut)
+- "mixtral-8x7b-32768"
+- "gemma-7b-it"
+- "llama3-70b-8192"
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -175,13 +173,13 @@ completion = client.chat.completions.create(
 Vous pouvez aussi utiliser des variables d'environnement :
 
 
-# Linux
+### Linux
 export GROQ_API_KEY="votre_clé_api_ici"
 
-# Windows (CMD)
+### Windows (CMD)
 set GROQ_API_KEY=votre_clé_api_ici
 
-# Windows (PowerShell)
+### Windows (PowerShell)
 $env:GROQ_API_KEY="votre_clé_api_ici"
 
 Puis modifiez groq_key.py pour les lire :
