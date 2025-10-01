@@ -188,6 +188,7 @@ Puis modifiez groq_key.py pour les lire :
 import os
 
 def read():
+
     # Essayer la variable d'environnement d'abord
     api_key = os.getenv('GROQ_API_KEY')
     if api_key:
