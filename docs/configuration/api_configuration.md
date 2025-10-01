@@ -33,14 +33,14 @@ Ce guide explique comment configurer et gérer l'API Groq pour le Local-Retrieva
 
 Lancez le script de setup de votre plateforme :
 
-# Fedora/Ubuntu (bash)
+#### Fedora/Ubuntu (bash)
 cd scripts/
 ./setup.sh
 
-# Windows (PowerShell)
+#### Windows (PowerShell)
 .\setup.ps1
 
-# Windows (CMD)
+#### Windows (CMD)
 setup.bat
 
 Le script vous demandera votre clé API et la configurera automatiquement.
