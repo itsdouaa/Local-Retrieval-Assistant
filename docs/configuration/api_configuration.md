@@ -173,13 +173,13 @@ completion = client.chat.completions.create(
 Vous pouvez aussi utiliser des variables d'environnement :
 
 
-### Linux
+#### Linux
 export GROQ_API_KEY="votre_clé_api_ici"
 
-### Windows (CMD)
+#### Windows (CMD)
 set GROQ_API_KEY=votre_clé_api_ici
 
-### Windows (PowerShell)
+#### Windows (PowerShell)
 $env:GROQ_API_KEY="votre_clé_api_ici"
 
 Puis modifiez groq_key.py pour les lire :
