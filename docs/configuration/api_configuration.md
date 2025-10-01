@@ -47,7 +47,8 @@ Le script vous demandera votre clé API et la configurera automatiquement.
 
 ### Méthode Manuelle
 
-# Sur Linux :(bash)
+Sur Linux :(bash)
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 # Créer le fichier avec votre clé
 echo "votre_clé_api_ici" | sudo tee /etc/groq_API.txt
@@ -69,6 +70,7 @@ sudo cat /etc/groq_API.txt
 ## 🔍 Vérification de la Configuration
 
 ### Test manuel :
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 #Testez la configuration
 python -c "
@@ -80,9 +82,11 @@ try:
 except Exception as e:
     print(f'❌ Erreur: {e}')
 "
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### Test via l'application :
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 cd src/
 python -c "
@@ -94,6 +98,7 @@ try:
 except Exception as e:
     print(f'❌ Erreur de connexion: {e}')
 "
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 ## ⚠️ Dépannage des Problèmes Courants
@@ -101,6 +106,7 @@ except Exception as e:
 ### Erreur: "API key not found"
 Solution :
 bash
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 # Vérifiez l'emplacement du fichier
 # Linux : /etc/groq_API.txt
@@ -108,6 +114,7 @@ bash
 
 # Vérifiez les permissions (Linux)
 ls -la /etc/groq_API.txt
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### Erreur: "Invalid API key"
@@ -133,6 +140,7 @@ Solution :
 
 ### Changer de Modèle LLM
 Modifiez groq_API.py :
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 # Changer le modèle (options disponibles)
 completion = client.chat.completions.create(
@@ -145,9 +153,11 @@ completion = client.chat.completions.create(
 # - "mixtral-8x7b-32768"
 # - "gemma-7b-it"
 # - "llama3-70b-8192"
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### Paramètres d'API Avancés
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 completion = client.chat.completions.create(
     model="meta-llama/llama-4-scout-17b-16e-instruct",
@@ -158,11 +168,13 @@ completion = client.chat.completions.create(
     stream=True,             # ← Réponse en streaming
     stop=None,               # ← Mots d'arrêt
 )
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### Variables d'Environnement (Alternative)
 Vous pouvez aussi utiliser des variables d'environnement :
------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 # Linux
 export GROQ_API_KEY="votre_clé_api_ici"
 
@@ -171,8 +183,9 @@ set GROQ_API_KEY=votre_clé_api_ici
 
 # Windows (PowerShell)
 $env:GROQ_API_KEY="votre_clé_api_ici"
------------------------------------------------------------------------------------------------------------------------------------------------------
+
 Puis modifiez groq_key.py pour les lire :
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 import os
 
@@ -184,6 +197,7 @@ def read():
     
     # Sinon, utiliser le fichier
     # ... reste du code ...
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 ## 📊 Monitoring et Quotas
@@ -196,6 +210,7 @@ Vérifier l'utilisation de l'API :
 3. Consultez vos statistiques d'utilisation
 
 Quotas par défaut :
+
 🔹 Requêtes par minute : Variable selon le modèle
 
 🔹 Tokens par minute : Variable selon le modèle
@@ -207,7 +222,7 @@ Ne jamais commiter les clés API
 
 Utiliser des permissions restrictives (chmod 600)
 
-Régénérer régulièrement les clés
+Regénérer régulièrement les clés
 
 Utiliser des clés différentes pour dev/prod
 
