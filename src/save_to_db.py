@@ -1,7 +1,7 @@
 import sqlite3
 import json
 
-def save(data):
+def update(data):
     connect = sqlite3.connect("/home/douaa/assistant/test.db")
     cursor = connect.cursor()
     cursor.execute("""
