@@ -14,12 +14,12 @@ Ce guide explique comment personnaliser les paramètres du Local-Retrieval-Assis
 ## 🔧 Paramètres de Performance
 
 ### Modèle d'Embedding
-Modifiez : 
-    `src_common/context.py`
+Modifiez `src/context.py`
 
-``python
+```python
 #### Changer le modèle d'embedding (ligne 15)
 model = SentenceTransformer("all-MiniLM-L6-v2")  # ← Modifier ici
+```
 
 #### Modèles disponibles :
 - "all-MiniLM-L6-v2" (par défaut, rapide, 384 dimensions)
@@ -28,24 +28,18 @@ model = SentenceTransformer("all-MiniLM-L6-v2")  # ← Modifier ici
 - "paraphrase-multilingual-MiniLM-L12-v2" (multilingue avancé)
 
 ### Taille du Cache d'Embeddings
-Ajouter dans context.py
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+Ajouter dans `src/context.py`
+```python
 import os
-os.environ["TRANSFORMERS_CACHE"] = "/chemin/vers/ton/cache"  #### Linux
-#### ou
-os.environ["TRANSFORMERS_CACHE"] = "C:\\chemin\\vers\\ton\\cache"  #### Windows
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+os.environ["TRANSFORMERS_CACHE"] = "/chemin/vers/ton/cache"
+```
 
 ## 📊 Paramètres de Récupération
 
 ### Nombre de Résultats Récupérés
-Modifiez src_common/context.py
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+Modifiez `src/context.py`
+```python
 def embeddings(question):
-
     # ... code existant ...
     
     # Modifier le nombre de résultats (ligne ~40)
@@ -55,13 +49,12 @@ def embeddings(question):
     # - 3-5 : Pour des réponses rapides et précises
     # - 5-10 : Pour une couverture plus large
     # - 10+ : Pour la recherche exhaustive (plus lent)
-    
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
+
 ### Seuil de Similarité
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+Modifiez `src/context.py`
+```python
 def embeddings(question):
-
     # ... code existant ...
     
     # Ajouter un seuil de similarité
@@ -73,57 +66,33 @@ def embeddings(question):
                        if 1 - dist > similarity_threshold]
     
     selected = [contents[i] for i in selected_indices if i < len(contents)]
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 
 ## 🏷️ Paramètres de Traitement
 
-### Génération de Tags
-Modifiez [OS]/src/Tags.py :
------------------------------------------------------------------------------------------------------------------------------------------------------
-def get(text):
-
-    # ... code existant ...
-    
-    # Modifier la longueur minimale des mots (ligne ~25)
-    filtered_words = [
-        word for word in words 
-        if word not in all_stopwords and len(word) > 3  # ← Changer 3 en 2, 4, etc.
-    ]
-    
-    # Modifier le nombre de tags générés
-    common_words = Counter(filtered_words).most_common(20)  # ← Changer 20 en 10, 30, etc.
-
------------------------------------------------------------------------------------------------------------------------------------------------------
-
 ### Langues Supportées pour l'OCR
 Les langues Tesseract peuvent être ajustées dans les scripts de setup :
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+```shell
 #### Pour ajouter des langues, modifier les scripts setup.sh
 sudo apt install tesseract-ocr-ara tesseract-ocr-fra tesseract-ocr-eng tesseract-ocr-spa tesseract-ocr-deu
 
 #### ou pour Fedora
 sudo dnf install tesseract-langpack-ara tesseract-langpack-fra tesseract-langpack-eng tesseract-langpack-spa tesseract-langpack-deu
+```
 
------------------------------------------------------------------------------------------------------------------------------------------------------
-
-Puis modifier src_common/file_to_dict.py :
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+Puis modifier src/file_to_dict.py :
+```python
 def image(file_path):
 
     # ... code existant ...
     text = pytesseract.image_to_string(image, lang="eng+fra+ara+spa+deu")  # ← Ajouter langues
-    
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 
 ## 💾 Paramètres de Stockage
 
 ### Emplacement de la Base de Données
-Modifiez [OS]/src/db.py :
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+Modifiez /src/db.py :
+```python
 def get_db_path():
 
     """Personnaliser l'emplacement de la BDD"""
@@ -138,12 +107,11 @@ def save(data):
 
     db_path = get_db_path()  # ← Utiliser la fonction personnalisée
     # ... reste du code ...
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 
 ### Taille Maximale des Fichiers
-Ajouter dans src_common/file_loader.py :
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+Ajouter dans src/file_loader.py :
+```python
 def main():
 
     # ... code existant ...
@@ -155,15 +123,13 @@ def main():
     if file_size > max_file_size:
         print(f"⚠️  Fichier trop volumineux ({file_size//1024//1024}MB > {max_file_size//1024//1024}MB)")
         return None
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 
 ## 🎨 Paramètres d'Interface
 
 ### Mode Verbose
-Modifiez src_common/engine.py :
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+Modifiez src/engine.py :
+```python
 def engine():
 
     # Ajouter en début de fonction
@@ -181,12 +147,10 @@ def engine():
     
         print("\n\n-------------------------response-------------------------\n\n")
         # ... reste du code ...
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 
 ### Formatage de la Réponse
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+```python
 #### Personnaliser le prompt dans engine.py
 prompt = f"""
 **Contexte:**
@@ -197,15 +161,13 @@ prompt = f"""
 
 **Réponse:**
 """  # ← Modifier le format selon vos préférences
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 
 ## 🔧 Configuration via Variables d'Environnement
 
 ### Fichier de Configuration Avancé
-Créez un fichier config.py dans src_common/ :
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+Créez un fichier `config.py` dans `src/` :
+```python
 import os
 
 #### Paramètres de performance
@@ -224,49 +186,42 @@ MAX_FILE_SIZE = int(os.getenv('MAX_FILE_SIZE', '52428800'))  # 50MB
 
 #### Paramètres d'interface
 VERBOSE = os.getenv('VERBOSE', 'True').lower() == 'true'
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 
 ## ⚙️ Exemples de Configurations Typiques
 
 ### Configuration Rapide (Défaut)
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 #### Idéal pour les tests et développement
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 NUM_RESULTS = 3
 VERBOSE = True
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 
 ### Configuration Production
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 #### Optimisée pour la performance
 EMBEDDING_MODEL = "all-mpnet-base-v2"
 NUM_RESULTS = 5
 SIMILARITY_THRESHOLD = 0.8
 VERBOSE = False
 MAX_FILE_SIZE = 104857600  # 100MB
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 
 ### Configuration Recherche Approfondie
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 #### Pour une couverture maximale
 EMBEDDING_MODEL = "multi-qa-mpnet-base-dot-v1"
 NUM_RESULTS = 10
 SIMILARITY_THRESHOLD = 0.6
 MAX_TAGS = 30
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 
 ## 🔍 Validation des Paramètres
 
 ### Script de Vérification
-Créez check_config.py :
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+Créez `check_config.py` dans `src/`:
+```python
 from config import *
 
 def validate_config():
@@ -283,7 +238,7 @@ def validate_config():
 if __name__ == "__main__":
 
     validate_config()
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 
 ## 📝 Bonnes Pratiques
 
