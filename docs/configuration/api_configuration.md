@@ -54,6 +54,8 @@ sudo cat /etc/groq_API.txt
 ## 🔍 Vérification de la Configuration
 
 ### Test manuel :
+```bash
+cd src/
 python -c"
 from groq_key import read
 try:
@@ -63,9 +65,10 @@ try:
 except Exception as e:
     print(f'❌ Erreur: {e}')
 "
+```
 
 ### Test via l'application :
-
+```bash
 cd src/
 python -c"
 import groq_API
@@ -76,24 +79,21 @@ try:
 except Exception as e:
     print(f'❌ Erreur de connexion: {e}')
 "
+```
 
 ## ⚠️ Dépannage des Problèmes Courants
 
 ### Erreur: "API key not found"
 Solution :
 
------------------------------------------------------------------------------------------------------------------------------------------------------
 #### Vérifiez l'emplacement du fichier
-#### Linux : /etc/groq_API.txt
-#### Windows : groq_API.txt dans le dossier src/
-#### Vérifiez les permissions (Linux)
-ls -la /etc/groq_API.txt
+`/etc/groq_API.txt`
 
------------------------------------------------------------------------------------------------------------------------------------------------------
+#### Vérifiez les permissions
+`ls -la /etc/groq_API.txt`
 
 ### Erreur: "Invalid API key"
 Solution :
-
 1. Vérifiez que la clé est correctement copiée
 
 2. Régénérez une nouvelle clé sur https://console.groq.com/
@@ -102,7 +102,6 @@ Solution :
 
 ### Erreur: "Rate limit exceeded"
 Solution :
-
 1. Attendez quelques minutes avant de réessayer
 
 2. Vérifiez votre quota sur https://console.groq.com/
@@ -114,7 +113,6 @@ Solution :
 
 ### Changer de Modèle LLM
 Modifiez groq_API.py :
-
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 #### Changer le modèle (options disponibles)
 completion = client.chat.completions.create(
@@ -127,11 +125,10 @@ completion = client.chat.completions.create(
 - "mixtral-8x7b-32768"
 - "gemma-7b-it"
 - "llama3-70b-8192"
-
+  
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### Paramètres d'API Avancés
-
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 completion = client.chat.completions.create(
     model="meta-llama/llama-4-scout-17b-16e-instruct",
@@ -147,33 +144,21 @@ completion = client.chat.completions.create(
 
 ### Variables d'Environnement (Alternative)
 Vous pouvez aussi utiliser des variables d'environnement :
-
-
-#### Linux
+```bash
 export GROQ_API_KEY="votre_clé_api_ici"
-
-#### Windows (CMD)
-set GROQ_API_KEY=votre_clé_api_ici
-
-#### Windows (PowerShell)
-$env:GROQ_API_KEY="votre_clé_api_ici"
-
-Puis modifiez groq_key.py pour les lire :
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+python -c"
 import os
 
 def read():
-
     # Essayer la variable d'environnement d'abord
     api_key = os.getenv('GROQ_API_KEY')
     if api_key:
         return api_key
-    
+    else
+        return None
     # Sinon, utiliser le fichier
-    # ... reste du code ...
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+"
+```
 
 ## 📊 Monitoring et Quotas
 
@@ -193,15 +178,15 @@ Quotas par défaut :
 🔹 Modèles disponibles : Dépend de votre plan
 
 ## 🔒 Bonnes Pratiques de Sécurité
-Ne jamais commiter les clés API
+1. Ne jamais commiter les clés API
 
-Utiliser des permissions restrictives (chmod 600)
+2. Utiliser des permissions restrictives (chmod 600)
 
-Regénérer régulièrement les clés
+3. Regénérer régulièrement les clés
 
-Utiliser des clés différentes pour dev/prod
+4. Utiliser des clés différentes pour dev/prod
 
-Monitorer l'utilisation pour détecter les abus
+5. Monitorer l'utilisation pour détecter les abus
 
 ## � Support
 
