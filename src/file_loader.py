@@ -1,7 +1,7 @@
 import os
 from tkinter import Tk, filedialog
 import file_to_dict
-import db
+import save_to_db
 
 def choose_file():
     root = Tk()
@@ -41,7 +41,7 @@ def main():
             print(f"Error opening file: {e}")
             return None
         try:
-            db.save(data)
+            save_to_db.update(data)
         except Exception as e:
             print(f"Error connecting to database: {e}")
         return data
