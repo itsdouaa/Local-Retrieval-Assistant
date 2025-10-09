@@ -113,23 +113,21 @@ Solution :
 
 ### Changer de Modèle LLM
 Modifiez groq_API.py :
------------------------------------------------------------------------------------------------------------------------------------------------------
+```pyhton
 #### Changer le modèle (options disponibles)
 completion = client.chat.completions.create(
     model="meta-llama/llama-4-scout-17b-16e-instruct",  # ← Modifier ici
     # Autres paramètres...
 )
-
+```
 #### Modèles disponibles :
 - "meta-llama/llama-4-scout-17b-16e-instruct" (par défaut)
 - "mixtral-8x7b-32768"
 - "gemma-7b-it"
 - "llama3-70b-8192"
-  
------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### Paramètres d'API Avancés
------------------------------------------------------------------------------------------------------------------------------------------------------
+```python
 completion = client.chat.completions.create(
     model="meta-llama/llama-4-scout-17b-16e-instruct",
     messages=[{"role": "user", "content": prompt}],
@@ -139,8 +137,7 @@ completion = client.chat.completions.create(
     stream=True,             # ← Réponse en streaming
     stop=None,               # ← Mots d'arrêt
 )
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+```
 
 ### Variables d'Environnement (Alternative)
 Vous pouvez aussi utiliser des variables d'environnement :
