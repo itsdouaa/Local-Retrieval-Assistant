@@ -32,24 +32,15 @@ Ce guide explique comment configurer et gérer l'API Groq pour le Local-Retrieva
 ### Méthode Automatique (Recommandée)
 
 Lancez le script de setup de votre plateforme :
-
-#### Fedora/Ubuntu (bash)
+```bash
 cd scripts/
 ./setup.sh
-
-#### Windows (PowerShell)
-.\setup.ps1
-
-#### Windows (CMD)
-setup.bat
+```
 
 Le script vous demandera votre clé API et la configurera automatiquement.
 
 ### Méthode Manuelle
-
-Sur Linux :(bash)
-
------------------------------------------------------------------------------------------------------------------------------------------------------
+```bash
 #### Créer le fichier avec votre clé
 echo "votre_clé_api_ici" | sudo tee /etc/groq_API.txt
 
@@ -58,22 +49,12 @@ sudo chmod 600 /etc/groq_API.txt
 
 #### Vérifier la configuration
 sudo cat /etc/groq_API.txt
-
------------------------------------------------------------------------------------------------------------------------------------------------------
-
-Sur Windows :
-
-1. Créez un fichier groq_API.txt dans le dossier src/
-2.Collez votre clé API dans le fichier
-3.Sauvegardez le fichier
+```
 
 ## 🔍 Vérification de la Configuration
 
 ### Test manuel :
-
------------------------------------------------------------------------------------------------------------------------------------------------------
-#Testez la configuration
-python -c "
+python -c"
 from groq_key import read
 try:
     api_key = read()
@@ -83,13 +64,10 @@ except Exception as e:
     print(f'❌ Erreur: {e}')
 "
 
------------------------------------------------------------------------------------------------------------------------------------------------------
-
 ### Test via l'application :
 
------------------------------------------------------------------------------------------------------------------------------------------------------
 cd src/
-python -c "
+python -c"
 import groq_API
 try:
     # Test de connexion simple
@@ -98,8 +76,6 @@ try:
 except Exception as e:
     print(f'❌ Erreur de connexion: {e}')
 "
-
------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ## ⚠️ Dépannage des Problèmes Courants
 
