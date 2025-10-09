@@ -7,14 +7,15 @@ Ce guide explique comment personnaliser les paramètres du Local-Retrieval-Assis
 ### Paramètres Modifiables par Catégorie :
 - 🔧 **Performances** : Modèles, embeddings, cache
 - 📊 **Récupération** : Nombre de résultats, similarité
-- 🏷️ **Traitement** : Tags, stopwords, langues
+- 🏷️ **Traitement** : stopwords, langues
 - 💾 **Stockage** : Base de données, fichiers temporaires
 - 🎨 **Interface** : Affichage, verbosité
 
 ## 🔧 Paramètres de Performance
 
 ### Modèle d'Embedding
-Modifiez `src_common/context.py` :
+Modifiez : 
+    `src_common/context.py`
 
 ``python
 #### Changer le modèle d'embedding (ligne 15)
