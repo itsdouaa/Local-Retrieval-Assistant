@@ -85,12 +85,11 @@ except Exception as e:
 
 ### Erreur: "API key not found"
 Solution :
+1. Vérifiez l'emplacement du fichier
+    `/etc/groq_API.txt`
 
-#### Vérifiez l'emplacement du fichier
-`/etc/groq_API.txt`
-
-#### Vérifiez les permissions
-`ls -la /etc/groq_API.txt`
+2. Vérifiez les permissions
+    `ls -la /etc/groq_API.txt`
 
 ### Erreur: "Invalid API key"
 Solution :
