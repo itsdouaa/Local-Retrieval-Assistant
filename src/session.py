@@ -1,4 +1,3 @@
-import logging
 import groq_API
 import context
 import embeddings
