@@ -1,68 +1,71 @@
 import groq_API
 import context
-import embeddings
-import database
 
-def select_db():
-    choice = {"1": database.create, "2": database.open_existing}
-    choosen = choice.get(input("Choose an option: \n1. Create database\n2. Open existing database\n"))
-    tries = 0
-    while not choosen and tries < 3:
-        tries += 1
-        print("Invalid Option!\n")
-        choosen = choice.get(input("Choose an option: \n1. Create database\n2. Open existing database\n"))
-    if tries ==3:
-        print("No database selected! Session cannot be started.")
-        return None
-        
-    db_path = choosen()
-    tries = 0
-    while not db_path and tries < 3:
-        print("You have to choose a database to continue!")
-        db_path = choosen()
-    if tries ==3:
-        print("No database selected! Session cannot be started.")
-        return None
-    return db_path
-
-def get_prompt():
-    question = input("Ask Your Question : \n")
-    context = context.retrieve(question)
-    #print("\n\n-------------------------context-------------------------\n\n", ctx)
-    if question.lower() != "exit":
-        prompt = f"""### Context: \n{context}\n### Question: {question}\n### Answer:"""
-    else prompt = "exit"
+class Session:
+    def __init__(self):
+        self.messages = Messages()
+        self._is_active = False
     
-    return prompt
-
-def start():
-    db_path = select_db()
-    if not db_path:
-        return None
-    messages = []
-    prompt = get_prompt()
-    while prompt != "exit":
-        messages.append({"role": "user", "content": prompt})
-        
-        print("\n\n-------------------------response-------------------------\n\n")
-        try:
-            completion = groq_API.response(messages)
-            full_reply = ""
-            for chunk in completion:
-                content = chunk.choices[0].delta.content or ""
-                print(content, end="", flush=True)
-                full_reply += content
-            messages.append({"role": "assistant", "content": full_reply})
-        except Exception as e:
-            print(f"Error Connecting to API: {e}")
-        
-        print("\n\n-------------------------prompt-------------------------\n\n")
-        prompt = get_prompt()
+    def close(self):
+        self.messages.clear()
+        self._is_active = False
     
-    save(db_path, messages)
-    return None
+    def open(self):
+        self._is_active = True
+        prompt = Prompt.from_input()
+        
+        while not prompt.is_exit_command():
+            self.messages.add("user", prompt.format)
+            print("\n\n-------------------------response-------------------------\n\n")
+            try:
+                completion = groq_API.response(self.messages.get_last_three())
+                full_reply = ""
+                for chunk in completion:
+                    content = chunk.choices[0].delta.content or ""
+                    print(content, end="", flush=True)
+                    full_reply += content
+                self.messages.add("assistant", full_reply)
+            except Exception as e:
+                print(f"Error Connecting to API: {e}")
+            
+            print("\n\n-------------------------prompt-------------------------\n\n")
+            prompt = Prompt.from_input()
+        
+        return None
+    
+    def manager(self):
+        self.open()
+        messages = self.messages.get_all()
+        self.close()
+        return messages
 
-def save(db_path, messages):
-    for message in messages:
-        emb = embeddings.generate(message["content"])
-        insert_record(db_path, message, emb)
+class Messages:
+    def __init__(self):
+        self._messages = []
+    
+    def add(self,role, content):
+        self._messages.append({"role": role, "content": content})
+    
+    def get_last_three(self):
+        return self._messages[-3:]
+    
+    def get_all(self):
+        return self._messages.copy() if self._messages else []
+    
+    def clear(self):
+        self._messages.clear()
+       
+class Prompt:
+    def __init__(self, question, context):
+        self.question = question
+        self.context = context
+        self.format = f"""### Context: \n{context}\n### Question: {question}\n### Answer:"""
+    
+    def is_exit_command(self) -> bool:
+        return self.question.lower() == "exit"
+        
+    @classmethod
+    def from_input(cls):
+        question = input("Ask Your Question : \n")
+        _context = context.retrieve(question)
+        return cls(question, _context)
