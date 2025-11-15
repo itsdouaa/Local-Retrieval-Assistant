@@ -12,7 +12,8 @@ class Session:
     
     def open(self):
         self._is_active = True
-        prompt = Prompt.from_input()
+        prompt = Prompt()
+        prompt.from_input()
         
         while not prompt.is_exit_command():
             self.messages.add("user", prompt.format)
