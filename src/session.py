@@ -32,12 +32,6 @@ class Session:
             prompt = Prompt.from_input()
         
         return None
-    
-    def manager(self):
-        self.open()
-        messages = self.messages.get_all()
-        self.close()
-        return messages
 
 class Messages:
     def __init__(self):
