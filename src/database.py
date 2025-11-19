@@ -1,5 +1,5 @@
-import sqlite3
-from sqlite_vss import loadable_extension
+import pysqlite3 as sqlite3
+import sqlite_vss
 import os
 from tkinter import Tk, filedialog
 import subprocess
@@ -7,16 +7,20 @@ import subprocess
 root = Tk()
 root.withdraw()
 
+class NonSavedDatabaseError(Exception):
+    #Exception levée quand l'utilisateur annule la sauvegarde de la base
+    pass
+
 class Database:
-    def __init__(self, path):
+    def __init__(self, path = ""):
         self.path = path
-        self.name = os.splitext(self.path)[0]
+        self.name = os.path.splitext(self.path)[0]
         try:
-            sqlite3.enable_load_extension(True)
-            self._connect = sqlite3.connect(self.path)
-            self._connect.load_extension(loadable_extension.load())
-            self._connect.execute("PRAGMA foreign_keys = ON;")
-            self.cursor = self._connect.cursor()
+            self.conn = sqlite3.connect(self.path)
+            self.conn.enable_load_extension(True)
+            sqlite_vss.load(self.conn)
+            self.conn.execute("PRAGMA foreign_keys = ON;")
+            self.cursor = self.conn.cursor()
         except sqlite3.Error as e:
             print(f"Error connecting to {self.name}.db: {e}")
     
@@ -55,7 +59,10 @@ class Database:
                 defaultextension=".db",
                 filetypes=[("SQLite Database", "*.db")]
             )
-            print(f"Database successfully created at: {path}")
+            if path:
+                print(f"Database successfully created at: {path}")
+            else:
+                raise NonSavedDatabaseError("Database not saved!")
             return self.initiate(path)
         except Exception as e:
             print(f"Database not created: {e}")
@@ -74,7 +81,7 @@ class Database:
             print(e)
             return None
     
-    def request(self, tables: list[Table] = None, fields = None, conditions = None, values = None):
+    def request(self, tables: list = None, fields = None, conditions = None, values = None):
         result = {}
         for table in tables:
             table_fields = fields.get(table.name) if fields else None
@@ -115,7 +122,7 @@ class Table:
         try:
             placeholders = ", ".join(["?" for _ in record])
             command = self.commands.insert_record.format(
-                name = self.name, 
+                name = self.name,
                 placeholders = placeholders
             )
             self.db_cursor.execute(command, record)
@@ -126,8 +133,8 @@ class Table:
         try:
             fields_str = ", ".join(fields) if fields else "*"
             command = self.commands.select_fields.format(
-                fields = fields_str, 
-                name = self.name, 
+                fields = fields_str,
+                name = self.name,
                 condition = condition or "1=1"
             )
             return self.db_cursor.execute(command, values or ()).fetchall()
@@ -155,8 +162,8 @@ class Virtual_Table(Table):
                 vector_bytes = vector.astype(np.float32).tobytes()
                 fields_str = ", ".join(fields) if fields else "*"
                 command = self.commands.search_with_distance.format(
-                    fields = fields_str, 
-                    name = self.name, 
+                    fields = fields_str,
+                    name = self.name,
                     vector_column = column
                 ) + f" LIMIT {limit_per_vector}"
                 self.db_cursor.execute(command, [vector_bytes])
@@ -189,4 +196,6 @@ class SQL_VIRTUAL_TABLE_commands(SQL_general_commands):
             ORDER BY distance ASC
         """
     
-
+if __name__ == '__main__':
+    database = Database()
+    database.create()
