@@ -21,6 +21,7 @@ class SQL_VIRTUAL_TABLE_commands(SQL_general_commands):
     def __init__(self):
         super().__init__()
         self.create_table = "CREATE VIRTUAL TABLE IF NOT EXISTS {name} USING vss0({attributes})"
+        self.insert_record = "INSERT INTO {name} (rowid, {columns}) VALUES ((SELECT IFNULL(MAX(rowid), 0) + 1 FROM {name}), {placeholders})"
         self.search = "SELECT {fields} FROM {name} WHERE vss_search({vector_column}, ?)"
         self.search_with_distance = """
             SELECT {fields}, distance 
@@ -90,7 +91,29 @@ class Virtual_Table(Table):
     def __init__(self, name, attributes:list[str], db_path, db_cursor):
         super().__init__(name, attributes, db_path, db_cursor)
         self.commands = SQL_VIRTUAL_TABLE_commands()
-        
+    
+    def insert(self, record: list, columns: list[str] = None):
+        try:
+            if len(record) == 1:
+                vector = record[0]
+                if hasattr(vector, 'tobytes'):
+                    vector_bytes = vector.tobytes()
+                else:
+                    vector_bytes = vector
+                placeholders = ", ".join(["?" for _ in record])
+                command = self.commands.insert_record.format(
+                    name = self.name,
+                    columns = '('+", ".join(columns)+')' if columns else self.attributes[0].split('(')[0],
+                    placeholders = placeholders
+                )
+                self.db_cursor.execute(command, [vector_bytes])
+                self.db_cursor.connection.commit()
+                print(f"Inserted vector into {self.name}")
+            else:
+                print(f"Expected 1 element, got {len(record)}: {record}")
+        except Exception as e:
+            print(f"Error when inserting into virtual table {self.name}: {e}")
+    
     def search_similar(self, query_vectors: list, fields: list = ["rowid"], column: str = "embedding", limit_per_vector: int = 3):
         try:
             all_results = []
