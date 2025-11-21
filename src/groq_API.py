@@ -2,6 +2,9 @@ from groq import Groq, AuthenticationError
 from tkinter import Tk, filedialog
 import subprocess
 
+root = Tk()
+root.withdraw()
+
 class Key:
     def __init__(self):
         self.value = ""
@@ -52,10 +55,9 @@ class Completion:
         return self.client.chat.completions.create(**parameters)
 
 def response(messages):
-    key = Key()
+    key = Key().read()
     while True:
         try:
-            key.read()
             completion = Completion(key.get_value())
             return completion.create(messages)
         except AuthenticationError:
