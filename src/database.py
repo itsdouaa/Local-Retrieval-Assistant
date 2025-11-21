@@ -240,4 +240,8 @@ class Database:
         except RuntimeError as e:
             print(f"Error when deleting database: {e}")
     
-
+    def link_tables(self, link_Table: Table, link_record: list, link_attributes: list[str] = None):
+        try:
+            link_Table.insert(link_record, link_attributes)
+        except Exception as e:
+            print(e)
