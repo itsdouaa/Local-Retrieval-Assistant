@@ -55,6 +55,7 @@ class Key:
     
     def read_from_keyboard(self):
         key = attempt.safe_input("\nEnter your valid key: ").strip()
+        return key
         
     def get_value(self):
         return self.value
