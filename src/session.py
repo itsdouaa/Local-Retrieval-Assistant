@@ -1,8 +1,8 @@
 import groq_API
 import context
-import attempt
+from attempts import Attempt
 
-attempt = attempt.Attempt()
+attempt = Attempt()
 
 class Session:
     def __init__(self):
@@ -17,7 +17,7 @@ class Session:
         self._is_active = True
         key = groq_API.Key()
         prompt = Prompt.from_input()
-        while not prompt.is_exit_command():
+        while not prompt.is_exit_command() and key:
             self.messages.add("user", prompt.format)
             print("\n\n-------------------------response-------------------------\n\n")
             try:

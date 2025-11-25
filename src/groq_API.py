@@ -1,9 +1,9 @@
 from groq import Groq
 from tkinter import Tk, filedialog
 import subprocess
-import attempt
+from attempts import Attempt 
 
-attempt = attempt.Attempt()
+attempt = Attempt()
 
 root = Tk()
 root.withdraw()
@@ -22,7 +22,9 @@ class Key:
         while choice != "1" and choice != "2":
             choice = attempt.safe_input("Choose a valid option :\n1. from .txt file   2. from keyboard").strip()
         source = sources.get(choice)
-        while True:
+        attempt.reset()
+        while True and attempt.should_retry():
+            attempt.increment()
             try:
                 key = source()
                 if key:
@@ -31,6 +33,8 @@ class Key:
                     raise NonLoadedKeyError("Operation canceled: key not loaded!")
             except Exception as e:
                 print(e, "\nRetry loading a key:\n")
+        if attempt.attempts == 3:
+            return None
     
     def read_from_file(self):
         try:
@@ -73,10 +77,9 @@ class Completion:
 
 
 def response(messages, key: Key):
-    while True:
-        try:
-            completion = Completion(key.get_value())
-            return completion.create(messages)
-        except Exception as e:
-            print(e)
-            return None
+    try:
+        completion = Completion(key.get_value())
+        return completion.create(messages)
+    except Exception as e:
+        print(e)
+        return None
