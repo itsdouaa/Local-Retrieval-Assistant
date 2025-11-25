@@ -149,7 +149,7 @@ class Database:
         self.tables: list['Table'] = []
         self.conn = None
     
-    def initiate(self, path):
+    def initiate(self, path: str):
         try:
             if not self.conn:
                 self.conn = sqlite3.connect(path)
@@ -185,35 +185,37 @@ class Database:
         except sqlite3.Error as e:
             print(f"Error connecting to {self.name}.db: {e}")
     
-    def create(self):
+    def create(self, path: str = ""):
         try:
-            path = filedialog.asksaveasfilename(
-                title="Create database",
-                defaultextension=".db",
-                filetypes=[("SQLite Database", "*.db")]
-            )
+            if not path:
+                path = filedialog.asksaveasfilename(
+                    title="Create database",
+                    defaultextension=".db",
+                    filetypes=[("SQLite Database", "*.db")]
+                )
             if path:
                 self.initiate(path)
                 print(f"{self.name} successfully created at: {path}")
                 return self
             else:
-                raise NonSavedDatabaseError("Database not saved!")
+                raise NonSavedDatabaseError("Operation canceled: Database not saved!")
         except Exception as e:
             print(e)
             return None
     
-    def open_existing(self):
+    def open_existing(self, path: str = ""):
         try:
-            path = filedialog.askopenfilename(
-                title = "choose your database", 
-                filetypes=[("SQLite Database", "*.db")]
-            )
+            if not path:
+                path = filedialog.askopenfilename(
+                    title = "choose your database", 
+                    filetypes=[("SQLite Database", "*.db")]
+                )
             if path:
                 self.initiate(path)
                 print(f"{self.name} opened successfully!")
                 return self
             else:
-                raise NonOpenedDatabaseError("No database opened!")
+                raise NonOpenedDatabaseError("Operation canceled: No database opened!")
         except Exception as e:
             print(e)
             return None
@@ -224,7 +226,7 @@ class Database:
                 return table
         raise ValueError(f"Table '{name}' not found!")
     
-    def request(self, tables: list[Table] = None, fields = None, conditions = None, values = None):
+    def request(self, tables: list[Table], fields = None, conditions = None, values = None):
         result = {}
         for table in tables:
             table_fields = fields.get(table.name) if fields else None
@@ -237,11 +239,17 @@ class Database:
     def delete(self):
         try:
             subprocess.run(["rm", self.path], check=True)
-        except RuntimeError as e:
+        except subprocess.CalledProcessError as e:
             print(f"Error when deleting database: {e}")
     
     def link_tables(self, link_Table: Table, link_record: list, link_attributes: list[str] = None):
         try:
             link_Table.insert(link_record, link_attributes)
         except Exception as e:
+            print(e)
+    
+    def close_connection(self):
+        try:
+            self.conn.close()
+        except sqlite3.Error as e:
             print(e)

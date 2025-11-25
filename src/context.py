@@ -2,6 +2,9 @@ import file
 import embeddings
 import history
 from database import Database, Virtual_Table 
+import attempt
+
+attempt = attempt.Attempt()
 
 def retrieve(question, opened_db: Database = None):
     context = ""
@@ -17,8 +20,8 @@ def retrieve(question, opened_db: Database = None):
 def query():
     added_context: str = ""
     add_file = {"yes": file.load, "y": file.load}
-    add = add_file.get(input("do you want to add some context/files ?\n").lower())
+    add = add_file.get(attempt.safe_input("do you want to add some context/files ?").strip().lower())
     while add:
         added_context += add()
-        add = add_file.get(input("do you want to add some context/files ?\n").lower())
+        add = add_file.get(attempt.safe_input("do you want to add some context/files ?").strip().lower())
     return added_context

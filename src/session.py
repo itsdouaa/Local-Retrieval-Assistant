@@ -1,5 +1,8 @@
 import groq_API
 import context
+import attempt
+
+attempt = attempt.Attempt()
 
 class Session:
     def __init__(self):
@@ -12,13 +15,13 @@ class Session:
     
     def open(self):
         self._is_active = True
+        key = groq_API.Key()
         prompt = Prompt.from_input()
-        
         while not prompt.is_exit_command():
             self.messages.add("user", prompt.format)
             print("\n\n-------------------------response-------------------------\n\n")
             try:
-                completion = groq_API.response(self.messages.get_last_three())
+                completion = groq_API.response(self.messages.get_last_three(), key)
                 full_reply = ""
                 for chunk in completion:
                     content = chunk.choices[0].delta.content or ""
@@ -27,6 +30,7 @@ class Session:
                 self.messages.add("assistant", full_reply)
             except Exception as e:
                 print(f"Error Connecting to API: {e}")
+                key = groq_API.Key()
             
             print("\n\n-------------------------prompt-------------------------\n\n")
             prompt = Prompt.from_input()
@@ -53,13 +57,20 @@ class Prompt:
     def __init__(self, question, context):
         self.question = question
         self.context = context
-        self.format = f"""### Context: \n{context}\n### Question: {question}\n### Answer:"""
+        if self.context:
+            self.format = f"""### Context: \n{context}\n### Question: {question}\n### Answer:"""
+        else:
+            self.format = f"""### Question: {question}\n### Answer:"""
     
     def is_exit_command(self) -> bool:
         return self.question.lower() == "exit"
         
     @classmethod
     def from_input(cls):
-        question = input("Ask Your Question : \n")
-        _context = context.retrieve(question)
+        question = attempt.safe_input("Ask Your Question : ").strip()
+        
+        _context = context.retrieve(question) if question.lower() != "exit" else ""
         return cls(question, _context)
+    
+if __name__ == '__main__':
+    session = Session().open()

@@ -2,6 +2,7 @@ import os
 import fitz
 import docx
 from PIL import Image
+import pytesseract
 
 def from_docx(file_path):
     title = os.path.splitext(os.path.basename(file_path))[0] + "\n"
