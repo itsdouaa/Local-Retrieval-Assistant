@@ -112,7 +112,6 @@ class System:
         self.users_file = users_file
         self.logger = Logger()
         self.logger.setup_logger()
-        self.load_users()
         self.attempt = Attempt()
     
     def load_users(self):
@@ -137,6 +136,7 @@ class System:
         try:
             with open(self.users_file, 'w', encoding='utf-8') as f:
                 json.dump(self.users, f, indent=4, ensure_ascii=False)
+                self.load_users()
         except Exception as e:
             self.logger.error(f"Error when saving the users: {e}")
     
