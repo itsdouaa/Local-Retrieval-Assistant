@@ -76,7 +76,7 @@ class Prompt:
     def from_input(cls):
         question = attempt.safe_input("Ask Your Question : ").strip()
         
-        _context = context.retrieve(question, Database().open_existing("/home/douaa/last.db")) if question.lower() != "exit" else ""
+        _context = context.retrieve(question) if question.lower() != "exit" else ""
         return cls(question, _context, _file)
     
 if __name__ == '__main__':
