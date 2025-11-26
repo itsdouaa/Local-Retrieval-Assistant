@@ -2,8 +2,9 @@ import logging
 import hashlib
 import json
 import os
-import sys
 import subprocess
+import database
+from database import Database
 from attempts import Attempt
 
 class Logger:
@@ -13,7 +14,7 @@ class Logger:
             self.log_file = os.path.splitext(self.log_file)[0] + ".log"
         if not os.path.exists(self.log_file):
             try:
-                subprocess.run(["touch", os.path.basename(log_file)], check=True)
+                subprocess.run(["touch", os.path.basename(self.log_file)], check=True)
             except subprocess.CalledProcessError as e:
                 print(f"log file not created: {e}")
     
@@ -43,9 +44,10 @@ class Logger:
     
 
 class User:
-    def __init__(self, username: str = "", password: str = ""):
+    def __init__(self, username: str = "", password: str = "", path: str = ""):
         self.username = username
         self.password = self.hash_password(password)
+        self.db = Database(path)
         self.attempt = Attempt()
     
     def set_username(self, username: str = ""):
@@ -91,6 +93,19 @@ class User:
     def hash_password(self, password):
         return hashlib.sha256(password.encode()).hexdigest()
     
+    def set_database_open(self, path: str = ""):
+        try:
+            self.db.open_existing()
+            return True
+        except Exception:
+            return False
+    
+    def set_database_create(self):
+        try:
+            self.db.create()
+            return True
+        except Exception:
+            return False
 
 class System:
     def __init__(self, users_file='users.json'):
@@ -141,8 +156,11 @@ class System:
         
         new_user.set_password()
         password = new_user.get_password()
-        if password:
-            self.users[username] = password
+        
+        new_user.set_database_create()
+        db_path = new_user.db.get_path()
+        if password and db_path:
+            self.users[username] = [password, db_path]
             self.logger.info(f"New user registered: {username}")
             self.save_users()
             print("Registration successful! You can now log in.")
@@ -170,7 +188,7 @@ class System:
         password = self.attempt.safe_input("Password: ").strip()
         hashed_password = user.hash_password(password)
         self.attempt.reset()
-        while self.users[username] != hashed_password and self.attempt.should_retry():
+        while hashed_password not in self.users[username] and self.attempt.should_retry():
             self.attempt.increment()
             self.logger.warning(f"Failed login attempt for: {username}")
             print("Wrong password! Please retry.")
@@ -178,6 +196,8 @@ class System:
             hashed_password = user.hash_password(password)
         if self.attempt.attempts == 3:
             return False
+        
+        user.set_database_open(self.users[username][1])
         self.logger.info(f"Login successful with: {username}")
         print("Login successful!")
         return True
@@ -192,7 +212,7 @@ class System:
         if self.login(username):
             user.set_password()
             new_password = user.get_password()
-            self.users[username] = new_password
+            self.users[username][0] = new_password
             self.save_users()
             self.logger.info(f"Password changed successfully for: {username}")
             print("Password changed successfully!")

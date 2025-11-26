@@ -143,9 +143,9 @@ class NonOpenedDatabaseError(Exception):
     
 
 class Database:
-    def __init__(self):
+    def __init__(self, path: str = ""):
         self.path = ""
-        self.name = ""
+        self.name = os.path.splitext(os.path.basename(self.path))[0]
         self.tables: list['Table'] = []
         self.conn = None
     
@@ -219,6 +219,9 @@ class Database:
         except Exception as e:
             print(e)
             return None
+    
+    def get_path(self):
+        return self.path
     
     def get_table(self, name: str) -> Table:
         for table in self.tables:
