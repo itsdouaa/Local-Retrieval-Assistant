@@ -1,5 +1,6 @@
 from sentence_transformers import SentenceTransformer
 from tiktoken import get_encoding
+import numpy as np
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
 encoding = get_encoding("cl100k_base")
@@ -36,4 +37,4 @@ def generate(text):
     for chunk in chunks:
         embedding = model.encode(chunk, convert_to_numpy=True, normalize_embeddings=True)
         embeddings.append(embedding)
-    return embeddings
+    return np.array(embeddings)

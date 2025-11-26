@@ -1,6 +1,8 @@
 import groq_API
 import context
+import file
 from attempts import Attempt
+from database import Database
 
 attempt = Attempt()
 
@@ -54,13 +56,18 @@ class Messages:
         self._messages.clear()
        
 class Prompt:
-    def __init__(self, question, context):
+    def __init__(self, question, context, file: str = ""):
         self.question = question
         self.context = context
-        if self.context:
-            self.format = f"""### Context: \n{context}\n### Question: {question}\n### Answer:"""
+        self.file = file
+        if self.context and self.file:
+            self.format = f"""### Context: \n{self.context + self.file}\n### Question: {self.question}\n### Answer:"""
+        elif self.context and not self.file:
+            self.format = f"""### Context: \n{self.context}\n### Question: {self.question}\n### Answer:"""
+        elif not self.context and self.file:
+            self.format = f"""### Context: \n{self.file}\n### Question: {self.question}\n### Answer:"""
         else:
-            self.format = f"""### Question: {question}\n### Answer:"""
+            self.format = f"""### Question: {self.question}\n### Answer:"""
     
     def is_exit_command(self) -> bool:
         return self.question.lower() == "exit"
@@ -69,8 +76,8 @@ class Prompt:
     def from_input(cls):
         question = attempt.safe_input("Ask Your Question : ").strip()
         
-        _context = context.retrieve(question) if question.lower() != "exit" else ""
-        return cls(question, _context)
+        _context = context.retrieve(question, Database().open_existing("/home/douaa/last.db")) if question.lower() != "exit" else ""
+        return cls(question, _context, _file)
     
 if __name__ == '__main__':
     session = Session().open()
