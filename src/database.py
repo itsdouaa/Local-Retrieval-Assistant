@@ -128,7 +128,8 @@ class Virtual_Table(Table):
                 self.db_cursor.execute(command, [vector_bytes])
                 results = self.db_cursor.fetchall()
                 all_results.extend(results)
-            return sorted(all_results, key=lambda x: x[-1])[:limit_per_vector * len(query_vectors)]
+            sorted_results = sorted(all_results, key=lambda x: x[-1])[:limit_per_vector * len(query_vectors)]
+            return [item[0] for item in sorted_results]
         except sqlite3.Error as e:
             print(f"Error when searching in {self.name}: {e}")
             return []
