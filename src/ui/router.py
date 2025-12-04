@@ -1,13 +1,20 @@
 import flet as ft
 from pages import ChatPage, LoginPage, LogoutPage, RegisterPage, ProfilePage
 
-class Router:
+class Router(ft.Container):
     def __init__(self, page: ft.Page):
+        super().__init__(
+            expand=True,
+            padding=0,
+            margin=0
+        )
+        
         self.page = page
         self.core = None
         
         self.current_user = None
         self.current_chat_id = None
+        self.current_page = None
         
         self.chat_page = ChatPage()
         self.login_page = LoginPage()
@@ -16,8 +23,7 @@ class Router:
         self.profile_page = ProfilePage()
         
         self._setup_callbacks()
-        
-        self.navigate_to_login()
+        self._initialized = False
     
     def _setup_callbacks(self):
         self.chat_page.set_callbacks({
@@ -55,9 +61,20 @@ class Router:
             self._update_user_info(self.current_user)
     
     def _show_page(self, page):
-        self.page.controls.clear()
-        self.page.add(page)
-        self.page.update()
+        if not self._initialized:
+            self._initial_page = page
+            return
+        
+        self.content = page
+        if self.page:
+            self.update()
+    
+    def on_added(self):
+        self._initialized = True
+        if hasattr(self, '_initial_page'):
+            self._show_page(self._initial_page)
+        else:
+            self.navigate_to_login()
     
     def _update_user_info(self, user_info):
         """Update user info across all relevant pages"""
