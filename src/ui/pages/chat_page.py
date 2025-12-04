@@ -1,26 +1,32 @@
-# pages/chat_page.py
 import flet as ft
 from components.header import Header
 from components.message_input import MessageInput
 from components.history_drawer import HistoryDrawer
 
 class ChatPage(ft.Container):
-    def __init__(self, router):
+    def __init__(self):
         super().__init__()
-        self.router = router
         
+        self.on_send_message = None
+        self.on_attach_file = None
+        self.on_menu_click = None
+        self.on_logout_click = None
+        self.on_load_chat = None
+        self.on_new_chat = None
+        
+        self.current_user = None
         self.current_chat_id = None
         
         self.header = Header(
             title="RAG Assistant",
-            user_info=router.get_current_user(),
-            on_menu_click=self._toggle_sidebar,
-            on_logout_click=router.navigate_to_logout
+            user_info=None,
+            on_menu_click=lambda: self._handle_menu_click(),
+            on_logout_click=lambda: self._handle_logout_click()
         )
         
         self.sidebar = HistoryDrawer(
-            on_select_chat=self._load_chat,
-            on_new_chat=self._new_chat,
+            on_select_chat=self._handle_select_chat,
+            on_new_chat=self._handle_new_chat,
             on_close=self._toggle_sidebar
         )
         
@@ -31,8 +37,8 @@ class ChatPage(ft.Container):
         )
         
         self.message_input = MessageInput(
-            on_send=self._send_message,
-            on_attach=self._attach_file,
+            on_send=self._handle_send,
+            on_attach=self._handle_attach,
             placeholder="Ask AI..."
         )
         
@@ -61,23 +67,36 @@ class ChatPage(ft.Container):
         else:
             self.sidebar.open()
     
-    def _send_message(self, text, context):
-        if text.strip():
+    def _handle_menu_click(self):
+        if self.on_menu_click:
+            self.on_menu_click()
+        else:
+            self._toggle_sidebar()
+    
+    def _handle_logout_click(self):
+        if self.on_logout_click:
+            self.on_logout_click()
+    
+    def _handle_send(self, text, context):
+        if text.strip() and self.on_send_message:
             self._add_message("user", text)
-            self.router.handle_send_message(text, context, self.current_chat_id)
+            self.on_send_message(text, context, self.current_chat_id)
     
-    def _attach_file(self, e):
-        self.router.handle_attach_file(e)
+    def _handle_attach(self, e):
+        if self.on_attach_file:
+            self.on_attach_file(e)
     
-    def _load_chat(self, chat_id):
+    def _handle_select_chat(self, chat_id):
         self.current_chat_id = chat_id
-        self.router.handle_load_chat(chat_id)
+        if self.on_load_chat:
+            self.on_load_chat(chat_id)
     
-    def _new_chat(self):
+    def _handle_new_chat(self):
         self.current_chat_id = None
         self.clear_messages()
         self.message_input.clear_input()
-        self.router.handle_new_chat()
+        if self.on_new_chat:
+            self.on_new_chat()
     
     def _add_message(self, role, content):
         from components.message_bubble import MessageBubble
@@ -85,15 +104,24 @@ class ChatPage(ft.Container):
         self.chat_history.controls.append(MessageBubble(message))
         self.chat_history.update()
     
+    def set_callbacks(self, callbacks):
+        self.on_send_message = callbacks.get("on_send_message")
+        self.on_attach_file = callbacks.get("on_attach_file")
+        self.on_menu_click = callbacks.get("on_menu_click")
+        self.on_logout_click = callbacks.get("on_logout_click")
+        self.on_load_chat = callbacks.get("on_load_chat")
+        self.on_new_chat = callbacks.get("on_new_chat")
+    
+    def set_user(self, user_info):
+        self.current_user = user_info
+        self.header.update_user_info(user_info)
+    
     def add_message(self, role, content):
         self._add_message(role, content)
     
     def clear_messages(self):
         self.chat_history.controls.clear()
         self.chat_history.update()
-    
-    def set_user(self, user_info):
-        self.header.update_user_info(user_info)
     
     def add_history_item(self, chat_id, title, timestamp, preview):
         self.sidebar.add_chat_item(chat_id, title, timestamp, preview)
@@ -103,3 +131,6 @@ class ChatPage(ft.Container):
     
     def set_context(self, context_data, label):
         self.message_input.set_context(context_data, label)
+    
+    def enable_input(self, enabled=True):
+        self.message_input.disable(not enabled)

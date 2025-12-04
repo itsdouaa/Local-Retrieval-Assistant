@@ -4,9 +4,11 @@ from components.input_field import StyledTextField
 from components.loading import LoadingSpinner
 
 class RegisterPage(ft.Container):
-    def __init__(self, router):
+    def __init__(self):
         super().__init__()
-        self.router = router
+        
+        self.on_register = None
+        self.on_login_click = None
         
         self.header = Header(
             title="Sign Up",
@@ -82,7 +84,7 @@ class RegisterPage(ft.Container):
                         ft.Text("Already have an account?"),
                         ft.TextButton(
                             "Sign in",
-                            on_click=router.navigate_to_login
+                            on_click=lambda e: self._handle_login_click()
                         )
                     ], alignment=ft.MainAxisAlignment.CENTER)
                 ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
@@ -99,13 +101,22 @@ class RegisterPage(ft.Container):
         self.padding = 20
         self.expand = True
     
-    def _handle_register(self):
+    def _handle_register(self, e):
         username = self.username_field.value.strip()
         password = self.password_field.value.strip()
         confirm = self.confirm_field.value.strip()
         terms = self.terms_checkbox.value
         
-        self.router.handle_register(username, password, confirm, terms)
+        if self.on_register:
+            self.on_register(name, password, confirm, terms)
+    
+    def _handle_login_click(self):
+        if self.on_login_click:
+            self.on_login_click()
+    
+    def set_callbacks(self, callbacks):
+        self.on_register = callbacks.get("on_register")
+        self.on_login_click = callbacks.get("on_login_click")
     
     def show_error(self, message):
         self.error_text.value = message
@@ -117,7 +128,7 @@ class RegisterPage(ft.Container):
         self.update()
     
     def clear_form(self):
-        self.name_field.value = ""
+        self.username_field.value = ""
         self.password_field.value = ""
         self.confirm_field.value = ""
         self.terms_checkbox.value = False

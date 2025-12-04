@@ -3,27 +3,21 @@ from components.header import Header
 from components.input_field import StyledTextField
 
 class ProfilePage(ft.Container):
-    def __init__(self, router):
+    def __init__(self):
         super().__init__()
-        self.router = router
+        
+        self.on_save_profile = None
+        self.on_back_click = None
         
         self.header = Header(
             title="Profile",
-            user_info=router.get_current_user(),
             show_menu_button=True,
-            on_menu_click=router.navigate_to_chat,
-            show_logout_button=False
+            on_menu_click=lambda: self._handle_back_click()
         )
         
-        self.display_name_field = StyledTextField(
-            label="Display Name",
+        self.display_username_field = StyledTextField(
+            label="Display Username",
             icon=ft.icons.PERSON
-        )
-        
-        self.email_field = StyledTextField(
-            label="Email",
-            icon=ft.icons.EMAIL,
-            disabled=True
         )
         
         self.bio_field = ft.TextField(
@@ -65,8 +59,7 @@ class ProfilePage(ft.Container):
                         content=ft.Container(
                             content=ft.Column([
                                 ft.Text("Personal Information", size=16, bold=True),
-                                self.display_name_field,
-                                self.email_field,
+                                self.display_username_field,
                                 ft.Container(height=10),
                                 ft.Text("Bio", size=14, bold=True),
                                 self.bio_field,
@@ -105,14 +98,26 @@ class ProfilePage(ft.Container):
         self.expand = True
     
     def _handle_save(self, e):
-        display_name = self.display_name_field.value.strip()
+        display_username = self.display_username_field.value.strip()
         bio = self.bio_field.value.strip()
         
-        self.router.handle_save_profile(display_name, bio)
+        if self.on_save_profile:
+            self.on_save_profile(display_username, bio)
     
-    def set_form_data(self, display_name, email, bio):
-        self.display_name_field.value = display_name
-        self.email_field.value = email
+    def _handle_back_click(self):
+        if self.on_back_click:
+            self.on_back_click()
+    
+    def set_callbacks(self, callbacks):
+        self.on_save_profile = callbacks.get("on_save_profile")
+        self.on_back_click = callbacks.get("on_back_click")
+    
+    def set_user_info(self, user_info):
+        if user_info:
+            self.header.update_user_info(user_info)
+    
+    def set_form_data(self, display_username, bio):
+        self.display_username_field.value = display_username
         self.bio_field.value = bio
         self.update()
     

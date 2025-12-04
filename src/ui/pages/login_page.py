@@ -1,13 +1,14 @@
-# pages/login_page.py
 import flet as ft
 from components.header import Header
 from components.input_field import StyledTextField
 from components.loading import LoadingSpinner
 
 class LoginPage(ft.Container):
-    def __init__(self, router):
+    def __init__(self):
         super().__init__()
-        self.router = router
+        
+        self.on_login = None
+        self.on_register_click = None
         
         self.header = Header(
             title="Login",
@@ -17,12 +18,12 @@ class LoginPage(ft.Container):
         
         self.username_field = StyledTextField(
             label="Username",
-            icon=ft.Icons.ACCOUNT_CIRCLE
+            icon=ft.icons.EMAIL
         )
         
         self.password_field = StyledTextField(
             label="Password",
-            icon=ft.Icons.LOCK,
+            icon=ft.icons.LOCK,
             is_password=True
         )
         
@@ -68,7 +69,7 @@ class LoginPage(ft.Container):
                         ft.Text("Don't have an account?"),
                         ft.TextButton(
                             "Sign up",
-                            on_click=router.navigate_to_register
+                            on_click=lambda e: self._handle_register_click()
                         )
                     ], alignment=ft.MainAxisAlignment.CENTER)
                 ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
@@ -89,8 +90,16 @@ class LoginPage(ft.Container):
         username = self.username_field.value.strip()
         password = self.password_field.value.strip()
         
-        if username and password:
-            self.router.handle_login(username, password)
+        if username and password and self.on_login:
+            self.on_login(username, password)
+    
+    def _handle_register_click(self):
+        if self.on_register_click:
+            self.on_register_click()
+    
+    def set_callbacks(self, callbacks):
+        self.on_login = callbacks.get("on_login")
+        self.on_register_click = callbacks.get("on_register_click")
     
     def show_error(self, message):
         self.error_text.value = message

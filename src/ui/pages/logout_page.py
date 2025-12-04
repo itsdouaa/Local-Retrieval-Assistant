@@ -3,13 +3,14 @@ from components.header import Header
 from components.loading import LoadingSpinner
 
 class LogoutPage(ft.Container):
-    def __init__(self, router):
+    def __init__(self):
         super().__init__()
-        self.router = router
+        
+        self.on_logout = None
+        self.on_cancel = None
         
         self.header = Header(
             title="Logout",
-            user_info=router.get_current_user(),
             show_menu_button=False,
             show_logout_button=False
         )
@@ -33,13 +34,6 @@ class LogoutPage(ft.Container):
                     ),
                     ft.Container(height=30),
                     ft.Text(
-                        f"Logged in as: {router.get_current_user()}",
-                        size=16,
-                        color=ft.colors.GREY_600,
-                        text_align=ft.TextAlign.CENTER
-                    ),
-                    ft.Container(height=30),
-                    ft.Text(
                         "You will need to log in again to continue.",
                         size=14,
                         color=ft.colors.GREY_700,
@@ -49,7 +43,7 @@ class LogoutPage(ft.Container):
                     ft.Row([
                         ft.OutlinedButton(
                             "Cancel",
-                            on_click=router.navigate_to_chat,
+                            on_click=self._handle_cancel,
                             width=150,
                             height=45
                         ),
@@ -77,7 +71,20 @@ class LogoutPage(ft.Container):
         self.expand = True
     
     def _handle_logout(self, e):
-        self.router.handle_logout()
+        if self.on_logout:
+            self.on_logout()
+    
+    def _handle_cancel(self, e):
+        if self.on_cancel:
+            self.on_cancel()
+    
+    def set_callbacks(self, callbacks):
+        self.on_logout = callbacks.get("on_logout")
+        self.on_cancel = callbacks.get("on_cancel")
+    
+    def set_user_info(self, user_info):
+        if user_info:
+            self.header.update_user_info(user_info)
     
     def show_loading(self, show=True):
         self.loading.visible = show
