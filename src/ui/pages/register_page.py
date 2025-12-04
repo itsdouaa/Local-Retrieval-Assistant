@@ -108,7 +108,7 @@ class RegisterPage(ft.Container):
         terms = self.terms_checkbox.value
         
         if self.on_register:
-            self.on_register(name, password, confirm, terms)
+            self.on_register(username, password, confirm, terms)
     
     def _handle_login_click(self):
         if self.on_login_click:
