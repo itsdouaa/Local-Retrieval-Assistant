@@ -18,17 +18,17 @@ class LoginPage(ft.Container):
         
         self.username_field = StyledTextField(
             label="Username",
-            icon=ft.icons.EMAIL
+            icon=ft.Icons.EMAIL
         )
         
         self.password_field = StyledTextField(
             label="Password",
-            icon=ft.icons.LOCK,
+            icon=ft.Icons.LOCK,
             is_password=True
         )
         
         self.error_text = ft.Text(
-            color=ft.colors.RED,
+            color=ft.Colors.RED,
             size=12,
             visible=False
         )
@@ -48,7 +48,7 @@ class LoginPage(ft.Container):
                     ft.Text(
                         "Sign in to your account",
                         size=16,
-                        color=ft.colors.GREY_600,
+                        color=ft.Colors.GREY_600,
                         text_align=ft.TextAlign.CENTER
                     ),
                     ft.Container(height=30),
@@ -75,14 +75,14 @@ class LoginPage(ft.Container):
                 ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                 padding=30,
                 border_radius=15,
-                bgcolor=ft.colors.WHITE,
+                bgcolor=ft.Colors.WHITE,
                 shadow=ft.BoxShadow(blur_radius=15),
                 width=400
             ),
             self.loading
         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, expand=True)
         
-        self.bgcolor = ft.colors.BLUE_50
+        self.bgcolor = ft.Colors.BLUE_50
         self.padding = 20
         self.expand = True
     
@@ -115,4 +115,3 @@ class LoginPage(ft.Container):
         self.password_field.value = ""
         self.error_text.visible = False
         self.loading.visible = False
-        self.update()

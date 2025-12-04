@@ -18,18 +18,18 @@ class RegisterPage(ft.Container):
         
         self.username_field = StyledTextField(
             label="Username",
-            icon=ft.icons.PERSON
+            icon=ft.Icons.PERSON
         )
         
         self.password_field = StyledTextField(
             label="Password",
-            icon=ft.icons.LOCK,
+            icon=ft.Icons.LOCK,
             is_password=True
         )
         
         self.confirm_field = StyledTextField(
             label="Confirm Password",
-            icon=ft.icons.LOCK,
+            icon=ft.Icons.LOCK,
             is_password=True
         )
         
@@ -39,7 +39,7 @@ class RegisterPage(ft.Container):
         )
         
         self.error_text = ft.Text(
-            color=ft.colors.RED,
+            color=ft.Colors.RED,
             size=12,
             visible=False
         )
@@ -59,7 +59,7 @@ class RegisterPage(ft.Container):
                     ft.Text(
                         "Join RAG Assistant today",
                         size=16,
-                        color=ft.colors.GREY_600,
+                        color=ft.Colors.GREY_600,
                         text_align=ft.TextAlign.CENTER
                     ),
                     ft.Container(height=20),
@@ -90,14 +90,14 @@ class RegisterPage(ft.Container):
                 ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                 padding=30,
                 border_radius=15,
-                bgcolor=ft.colors.WHITE,
+                bgcolor=ft.Colors.WHITE,
                 shadow=ft.BoxShadow(blur_radius=15),
                 width=450
             ),
             self.loading
         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, expand=True)
         
-        self.bgcolor = ft.colors.BLUE_50
+        self.bgcolor = ft.Colors.BLUE_50
         self.padding = 20
         self.expand = True
     
@@ -134,4 +134,3 @@ class RegisterPage(ft.Container):
         self.terms_checkbox.value = False
         self.error_text.visible = False
         self.loading.visible = False
-        self.update()
