@@ -19,7 +19,7 @@ class Header(ft.Container):
         self.on_logout_click = on_logout_click
         
         if 'bgcolor' not in kwargs:
-            self.bgcolor = ft.colors.BLUE_50
+            self.bgcolor = ft.Colors.BLUE_50
         if 'height' not in kwargs:
             self.height = 60
         if 'padding' not in kwargs:
@@ -32,7 +32,7 @@ class Header(ft.Container):
         
         if show_menu_button:
             self.menu_button = ft.IconButton(
-                icon=ft.icons.MENU,
+                icon=ft.Icons.MENU,
                 icon_size=24,
                 tooltip="Menu",
                 on_click=self._handle_menu_click
@@ -60,14 +60,14 @@ class Header(ft.Container):
             self.user_text = ft.Text(
                 f"👤 {self.user_info}",
                 size=14,
-                color=ft.colors.GREY_600,
+                color=ft.Colors.GREY_600,
                 text_align=ft.TextAlign.RIGHT
             )
             right_controls.append(self.user_text)
         
         if show_logout_button and self.user_info:
             self.logout_button = ft.IconButton(
-                icon=ft.icons.LOGOUT,
+                icon=ft.Icons.LOGOUT,
                 icon_size=20,
                 tooltip="Se déconnecter",
                 on_click=self._handle_logout_click
@@ -121,7 +121,7 @@ class Header(ft.Container):
                 
                 if not self.logout_button and len(right_row.controls) > 1:
                     for control in right_row.controls:
-                        if isinstance(control, ft.IconButton) and control.icon == ft.icons.LOGOUT:
+                        if isinstance(control, ft.IconButton) and control.icon == ft.Icons.LOGOUT:
                             self.logout_button = control
                             break
         else:

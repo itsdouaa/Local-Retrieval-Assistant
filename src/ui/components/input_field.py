@@ -5,7 +5,7 @@ class StyledTextField(ft.TextField):
         super().__init__(
             label=label,
             password=is_password,
-            border_color=ft.colors.BLUE,
+            border_color=ft.Colors.BLUE,
             border_radius=10,
             prefix_icon=icon
         )

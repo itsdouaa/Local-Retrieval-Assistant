@@ -9,8 +9,8 @@ class HistoryDrawer(ft.Container):
         self.on_close = on_close
         
         self.width = 300
-        self.bgcolor = ft.colors.WHITE
-        self.border = ft.border.only(right=ft.border.BorderSide(1, ft.colors.GREY_300))
+        self.bgcolor = ft.Colors.WHITE
+        self.border = ft.border.only(right=ft.border.BorderSide(1, ft.Colors.GREY_300))
         self.visible = False
         
         self.history_list = ft.Column(
@@ -25,19 +25,19 @@ class HistoryDrawer(ft.Container):
                     content=ft.Row([
                         ft.Text("Chat History", size=18, weight=ft.FontWeight.BOLD),
                         ft.IconButton(
-                            icon=ft.icons.CLOSE,
+                            icon=ft.Icons.CLOSE,
                             icon_size=20,
                             on_click=lambda e: self.close()
                         )
                     ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
                     padding=15,
-                    border=ft.border.only(bottom=ft.border.BorderSide(1, ft.colors.GREY_300))
+                    border=ft.border.only(bottom=ft.border.BorderSide(1, ft.Colors.GREY_300))
                 ),
                 
                 ft.Container(
                     content=ft.ElevatedButton(
                         "New Chat",
-                        icon=ft.icons.ADD,
+                        icon=ft.Icons.ADD,
                         on_click=lambda e: self._handle_new_chat(),
                         expand=True
                     ),
@@ -52,8 +52,8 @@ class HistoryDrawer(ft.Container):
                 
                 ft.Container(
                     content=ft.Column([
-                        ft.Icon(ft.icons.HISTORY, size=40, color=ft.colors.GREY_400),
-                        ft.Text("No conversations yet", color=ft.colors.GREY_600)
+                        ft.Icon(ft.Icons.HISTORY, size=40, color=ft.Colors.GREY_400),
+                        ft.Text("No conversations yet", color=ft.Colors.GREY_600)
                     ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                     alignment=ft.alignment.center,
                     expand=True,
@@ -76,15 +76,15 @@ class HistoryDrawer(ft.Container):
                            weight=ft.FontWeight.BOLD, 
                            size=14,
                            expand=True),
-                    ft.Text(timestamp, size=12, color=ft.colors.GREY_500)
+                    ft.Text(timestamp, size=12, color=ft.Colors.GREY_500)
                 ]),
                 ft.Text(preview[:50] + "..." if len(preview) > 50 else preview,
                        size=12, 
-                       color=ft.colors.GREY_600)
+                       color=ft.Colors.GREY_600)
             ]),
             padding=10,
             border_radius=5,
-            bgcolor=ft.colors.GREY_50,
+            bgcolor=ft.Colors.GREY_50,
             on_click=lambda e, cid=chat_id: self._handle_select_chat(cid),
             ink=True
         )

@@ -6,7 +6,7 @@ class MessageBubble(ft.Container):
         self.role = message["role"]
         self.content = message["content"]
         
-        self.bgcolor = ft.colors.BLUE_50 if self.role == "user" else ft.colors.GREY_100
+        self.bgcolor = ft.Colors.BLUE_50 if self.role == "user" else ft.Colors.GREY_100
         self.border_radius = 15
         self.padding = 15
         self.margin = ft.margin.only(bottom=10)
