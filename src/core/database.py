@@ -1,12 +1,7 @@
 import pysqlite3 as sqlite3
 import sqlite_vss
 import numpy as np
-from tkinter import Tk, filedialog
 import os
-import subprocess
-
-root = Tk()
-root.withdraw()
 
 class SQL_general_commands:
     def __init__(self):
@@ -49,7 +44,6 @@ class Table:
             self.db_cursor.connection.commit()
             return True
         except sqlite3.Error as e:
-            print(f"Error when creating {self.name}: {e}")
             return False
     
     def insert(self, record: list, columns: list[str] = None):
@@ -62,8 +56,8 @@ class Table:
             )
             self.db_cursor.execute(command, record)
             self.db_cursor.connection.commit()
-        except sqlite3.Error as e:
-            print(f"Error when inserting the record: {e}")
+        except sqlite3.Error:
+            pass
     
     def select(self, fields: list[str] = None, condition: str = "", values: list = None):
         try:
@@ -74,8 +68,7 @@ class Table:
                 condition = condition or "1=1"
             )
             return self.db_cursor.execute(command, values or ()).fetchall()
-        except sqlite3.Error as e:
-            print(f"Error when selecting: {e}")
+        except sqlite3.Error:
             return []
     
     def delete_if_exist(self):
@@ -83,8 +76,8 @@ class Table:
             command = self.commands.delete_table.format(name = self.name)
             self.db_cursor.execute(command)
             self.db_cursor.connection.commit()
-        except sqlite3.Error as e:
-            print(f"Error when deleting {self.name}: {e}")
+        except sqlite3.Error:
+            pass
     
 
 class Virtual_Table(Table):
@@ -108,11 +101,8 @@ class Virtual_Table(Table):
                 )
                 self.db_cursor.execute(command, [vector_bytes])
                 self.db_cursor.connection.commit()
-                print(f"Inserted vector into {self.name}")
-            else:
-                print(f"Expected 1 element, got {len(record)}: {record}")
-        except Exception as e:
-            print(f"Error when inserting into virtual table {self.name}: {e}")
+        except Exception:
+            pass
     
     def search_similar(self, query_vectors: list, fields: list = ["rowid"], column: str = "embedding", limit_per_vector: int = 3):
         try:
@@ -130,8 +120,7 @@ class Virtual_Table(Table):
                 all_results.extend(results)
             sorted_results = sorted(all_results, key=lambda x: x[-1])[:limit_per_vector * len(query_vectors)]
             return [item[0] for item in sorted_results]
-        except sqlite3.Error as e:
-            print(f"Error when searching in {self.name}: {e}")
+        except sqlite3.Error:
             return []
     
 
@@ -149,6 +138,8 @@ class Database:
         self.name = os.path.splitext(os.path.basename(self.path))[0]
         self.tables: list['Table'] = []
         self.conn = None
+        self.on_created = None
+        self.on_opened = None
     
     def initiate(self, path: str):
         try:
@@ -183,43 +174,72 @@ class Database:
             self.get_table("history").create_if_not_exist()
             self.get_table("embeddings").create_if_not_exist()
             self.get_table("embeddings_message").create_if_not_exist()
-        except sqlite3.Error as e:
-            print(f"Error connecting to {self.name}.db: {e}")
+            return True
+        except sqlite3.Error:
+            return False
     
-    def create(self, path: str = ""):
+    def create(self, path: str = "", page=None, on_created=None):
         try:
+            self.on_created = on_created
             if not path:
-                path = filedialog.asksaveasfilename(
-                    title="Create database",
-                    defaultextension=".db",
-                    filetypes=[("SQLite Database", "*.db")]
+                from ui.components.file_save_dialog import FileSaveDialog
+                FileSaveDialog.ask_saveas_filename(
+                    page=page,
+                    on_file_selected=self._handle_create_selection,
+                    dialog_title="Create database",
+                    default_filename="database.db",
+                    file_types=[("SQLite Database", "*.db")]
                 )
+                return
             if path:
-                self.initiate(path)
-                print(f"{self.name} successfully created at: {path}")
-                return self
-            else:
-                raise NonSavedDatabaseError("Operation canceled: Database not saved!")
-        except Exception as e:
-            print(e)
-            return None
+                if not path.endswith('.db'):
+                    path = path + '.db'
+                success = self.initiate(path)
+                if success and self.on_created:
+                    self.on_created(self)
+        except Exception:
+            if self.on_created:
+                self.on_created(None)
     
-    def open_existing(self, path: str = ""):
+    def _handle_create_selection(self, path):
+        if path:
+            if not path.endswith('.db'):
+                path = path + '.db'
+            success = self.initiate(path)
+            if success and self.on_created:
+                self.on_created(self)
+        else:
+            if self.on_created:
+                self.on_created(None)
+    
+    def open_existing(self, path: str = "", page=None, on_opened=None):
         try:
+            self.on_opened = on_opened
             if not path:
-                path = filedialog.askopenfilename(
-                    title = "choose your database", 
-                    filetypes=[("SQLite Database", "*.db")]
+                from ui.components.file_open_dialog import FileOpenDialog
+                FileOpenDialog.askopenfilename(
+                    page=page,
+                    on_file_selected=self._handle_open_selection,
+                    dialog_title="Choose your database",
+                    file_types=[("SQLite Database", "*.db")]
                 )
+                return
             if path:
-                self.initiate(path)
-                print(f"{self.name} opened successfully!")
-                return self
-            else:
-                raise NonOpenedDatabaseError("Operation canceled: No database opened!")
-        except Exception as e:
-            print(e)
-            return None
+                success = self.initiate(path)
+                if success and self.on_opened:
+                    self.on_opened(self)
+        except Exception:
+            if self.on_opened:
+                self.on_opened(None)
+    
+    def _handle_open_selection(self, path):
+        if path:
+            success = self.initiate(path)
+            if success and self.on_opened:
+                self.on_opened(self)
+        else:
+            if self.on_opened:
+                self.on_opened(None)
     
     def get_path(self):
         return self.path
@@ -242,18 +262,20 @@ class Database:
     
     def delete(self):
         try:
+            import subprocess
             subprocess.run(["rm", self.path], check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Error when deleting database: {e}")
+        except:
+            pass
     
     def link_tables(self, link_Table: Table, link_record: list, link_attributes: list[str] = None):
         try:
             link_Table.insert(link_record, link_attributes)
-        except Exception as e:
-            print(e)
+        except:
+            pass
     
     def close_connection(self):
         try:
-            self.conn.close()
-        except sqlite3.Error as e:
-            print(e)
+            if self.conn:
+                self.conn.close()
+        except:
+            pass

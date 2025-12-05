@@ -2,10 +2,8 @@ import logging
 import hashlib
 import json
 import os
-import subprocess
 import database
 from database import Database
-from attempts import Attempt
 
 class Logger:
     def __init__(self, log_file='log_file.log'):
@@ -13,10 +11,9 @@ class Logger:
         if os.path.splitext(self.log_file)[1] != ".log":
             self.log_file = os.path.splitext(self.log_file)[0] + ".log"
         if not os.path.exists(self.log_file):
-            try:
-                subprocess.run(["touch", os.path.basename(self.log_file)], check=True)
-            except subprocess.CalledProcessError as e:
-                print(f"log file not created: {e}")
+            with open(self.log_file, 'w', encoding='utf-8') as f:
+                f.write('')
+        self.setup_logger()
     
     def setup_logger(self):
         self.logger = logging.getLogger('logger')
@@ -26,64 +23,43 @@ class Logger:
             fh = logging.FileHandler(self.log_file, encoding='utf-8')
             fh.setFormatter(formatter)
             self.logger.addHandler(fh)
-            sh = logging.StreamHandler()
-            sh.setFormatter(formatter)
-            self.logger.addHandler(sh)
     
-    def view_logs(self):
-        print("\n=== RECENT LOGS ===\n")
-        try:
-            with open(self.log_file, 'r', encoding='utf-8') as f:
-                logs = f.readlines()[-10:]
-                for log in logs:
-                    print(log.strip())
-        except FileNotFoundError:
-            print("No logs found..")
-        except Exception as e:
-            print(f"Error reading logs: {e}")
+    def warning(self, message):
+        if hasattr(self, 'logger'):
+            self.logger.warning(message)
     
+    def error(self, message):
+        if hasattr(self, 'logger'):
+            self.logger.error(message)
+    
+    def info(self, message):
+        if hasattr(self, 'logger'):
+            self.logger.info(message)
+    
+    def debug(self, message):
+        if hasattr(self, 'logger'):
+            self.logger.debug(message)
 
 class User:
     def __init__(self, username: str = "", password: str = "", path: str = ""):
         self.username = username
         self.password = self.hash_password(password)
         self.db = Database(path)
-        self.attempt = Attempt()
     
     def set_username(self, username: str = ""):
-        if not username:
-            username = self.attempt.safe_input("Username: ").strip()
-            self.attempt.reset()
-            while not username and self.attempt.should_retry():
-                self.attempt.increment()
-                print("Invalid username! Please retry.")
-                username = self.attempt.safe_input("Username: ").strip()
-            if self.attempt.attempts == 3:
-                return False
-        self.username = username
-        return True
+        self.username = username.strip()
+        return bool(self.username)
     
     def get_username(self):
         return self.username
     
-    def set_password(self, password: str = ""):
+    def set_password(self, password: str = "", confirm_password: str = ""):
         if not password:
-            password = self.attempt.safe_input("Password: ")
-            self.attempt.reset()
-            while not password and self.attempt.should_retry():
-                self.attempt.increment()
-                print("Password cannot be empty!")
-                password = self.attempt.safe_input("Password: ")
-            if self.attempt.attempts == 3:
-                return False
-            confirm_password = self.attempt.safe_input("Confirm Password: ")
-            self.attempt.reset()
-            while password != confirm_password  and self.attempt.should_retry():
-                self.attempt.increment()
-                print("Passwords do not match! Please try again.")
-                confirm_password = self.attempt.safe_input("Confirm Password: ")
-            if self.attempt.attempts == 3:
-                return False
+            return False
+        
+        if confirm_password and password != confirm_password:
+            return False
+        
         self.password = self.hash_password(password)
         return True
     
@@ -93,16 +69,16 @@ class User:
     def hash_password(self, password):
         return hashlib.sha256(password.encode()).hexdigest()
     
-    def set_database_open(self, path: str = ""):
+    def set_database_open(self, path: str = "", page=None):
         try:
-            self.db.open_existing()
+            self.db.open_existing(path=path, page=page)
             return True
         except Exception:
             return False
     
-    def set_database_create(self):
+    def set_database_create(self, page=None):
         try:
-            self.db.create()
+            self.db.create(page=page)
             return True
         except Exception:
             return False
@@ -111,112 +87,134 @@ class System:
     def __init__(self, users_file='users.json'):
         self.users_file = users_file
         self.logger = Logger()
-        self.logger.setup_logger()
-        self.attempt = Attempt()
+        self.load_users()
     
     def load_users(self):
         try:
             if os.path.exists(self.users_file):
                 with open(self.users_file, 'r', encoding='utf-8') as f:
-                    self.users = json.load(f)
+                    content = f.read().strip()
+                    if content:
+                        self.users = json.loads(content)
+                    else:
+                        self.users = {}
             else:
-                try:
-                    subprocess.run(["touch", os.path.basename(self.users_file)], check=True)
-                    self.users = {}
-                except subprocess.CalledProcessError as e:
-                    print(f"log file not created: {e}")
+                with open(self.users_file, 'w', encoding='utf-8') as f:
+                    json.dump({}, f)
+                self.users = {}
         except Exception as e:
-            try:
-                self.logger.error(f"Error when loading the users: {e}")
-            except Exception:
-                print(f"Error when loading the users: {e}")
+            self.logger.error(f"Error when loading the users: {e}")
             self.users = {}
+            with open(self.users_file, 'w', encoding='utf-8') as f:
+                json.dump({}, f, indent=4)
     
     def save_users(self):
         try:
             with open(self.users_file, 'w', encoding='utf-8') as f:
                 json.dump(self.users, f, indent=4, ensure_ascii=False)
-                self.load_users()
+            return True
         except Exception as e:
             self.logger.error(f"Error when saving the users: {e}")
+            return False
     
-    def register(self):
-        new_user = User()
-        new_user.set_username()
-        username = new_user.get_username()
-        self.attempt.reset()
-        while username in self.users and self.attempt.should_retry():
-            self.attempt.increment()
-            self.logger.warning(f"Registration attempt with existing username: {username}")
-            print("Username already exists")
-            new_user.set_username()
-            username = new_user.get_username()
-        if self.attempt.attempts == 3:
-            return False
-        
-        new_user.set_password()
-        password = new_user.get_password()
-        
-        new_user.set_database_create()
-        db_path = new_user.db.get_path()
-        if password and db_path:
-            self.users[username] = [password, db_path]
-            self.logger.info(f"New user registered: {username}")
-            self.save_users()
-            print("Registration successful! You can now log in.")
-            return True
-        else:
-            return False
-        
-    def login(self, username: str = ""):
-        user = User()
-        if username:
-            user.set_username(username)
-        else:
-            user.set_username()
-            username = user.get_username()
-        self.attempt.reset()
-        while username not in self.users and self.attempt.should_retry():
-            self.attempt.increment()
-            self.logger.warning(f"Login attempt with non-existent user: {username}")
-            print("User not found!")
-            user.set_username()
-            username = user.get_username()
-        if self.attempt.attempts == 3:
-            return False
-        
-        password = self.attempt.safe_input("Password: ").strip()
-        hashed_password = user.hash_password(password)
-        self.attempt.reset()
-        while hashed_password not in self.users[username] and self.attempt.should_retry():
-            self.attempt.increment()
-            self.logger.warning(f"Failed login attempt for: {username}")
-            print("Wrong password! Please retry.")
-            password = self.attempt.safe_input("Password: ").strip()
-            hashed_password = user.hash_password(password)
-        if self.attempt.attempts == 3:
-            return False
-        
-        user.set_database_open(self.users[username][1])
-        self.logger.info(f"Login successful with: {username}")
-        print("Login successful!")
-        return True
+    def register(self, username, password, confirm_password, db_path=None, page=None):
+        try:
+            if not username or not username.strip():
+                return False, "Username is required", None
+            
+            if not password:
+                return False, "Password is required", None
+            
+            if password != confirm_password:
+                return False, "Passwords do not match", None
+            
+            if username in self.users:
+                self.logger.warning(f"Registration attempt with existing username: {username}")
+                return False, "Username already exists", None
+            
+            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+            
+            if not db_path:
+                user_db = Database()
+                user_db.create(page=page)
+                db_path = user_db.get_path()
+            
+            self.users[username] = [hashed_password, db_path]
+            if self.save_users():
+                self.logger.info(f"New user registered: {username}")
+                return True, "Registration successful!", db_path
+            else:
+                if username in self.users:
+                    del self.users[username]
+                return False, "Failed to save user data", None
+                
+        except Exception as e:
+            self.logger.error(f"Registration error for {username}: {e}")
+            return False, f"Registration failed: {str(e)}", None
     
-    def change_password(self, username: str = ""):
-        user = User()
-        if username:
-            user.set_username(username)
-        else:
-            user.set_username()
-            username = user.get_username()
-        if self.login(username):
-            user.set_password()
-            new_password = user.get_password()
-            self.users[username][0] = new_password
-            self.save_users()
-            self.logger.info(f"Password changed successfully for: {username}")
-            print("Password changed successfully!")
-        else:
-            print("Password not changed! Too many wrong attempts.")
+    def login(self, username, password):
+        try:
+            if username not in self.users:
+                self.logger.warning(f"Login attempt with non-existent user: {username}")
+                return False, "User not found", None
+            
+            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+            stored_password = self.users[username][0]
+            
+            if hashed_password != stored_password:
+                self.logger.warning(f"Failed login attempt for: {username}")
+                return False, "Invalid password", None
+            
+            db_path = self.users[username][1] if len(self.users[username]) > 1 else None
+            
+            self.logger.info(f"Login successful with: {username}")
+            return True, "Login successful!", db_path
+            
+        except Exception as e:
+            self.logger.error(f"Login error for {username}: {e}")
+            return False, f"Login failed: {str(e)}", None
     
-
+    def change_password(self, username, current_password, new_password, confirm_password):
+        try:
+            login_success, message, _ = self.login(username, current_password)
+            if not login_success:
+                return False, f"Current password verification failed: {message}"
+            
+            if not new_password:
+                return False, "New password is required"
+            
+            if new_password != confirm_password:
+                return False, "New passwords do not match"
+                
+            new_hashed_password = hashlib.sha256(new_password.encode()).hexdigest()
+            self.users[username][0] = new_hashed_password
+            
+            if self.save_users():
+                self.logger.info(f"Password changed successfully for: {username}")
+                return True, "Password changed successfully!"
+            else:
+                return False, "Failed to save password change"
+        except Exception as e:
+            self.logger.error(f"Password change error for {username}: {e}")
+            return False, f"Password change failed: {str(e)}"
+            
+    def get_user_database_path(self, username):
+        if username in self.users and len(self.users[username]) > 1:
+            return self.users[username][1]
+        return None
+    
+    def user_exists(self, username):
+        return username in self.users
+    
+    def create_user_database(self, username, page=None):
+        try:
+            user_db = Database()
+            user_db.create(page=page)
+            db_path = user_db.get_path()
+            if username in self.users:
+                self.users[username].append(db_path)
+                self.save_users()
+            return db_path
+        except Exception as e:
+            self.logger.error(f"Failed to create database for {username}: {e}")
+            return None

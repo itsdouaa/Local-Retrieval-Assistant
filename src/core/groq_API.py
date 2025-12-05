@@ -1,64 +1,45 @@
 from groq import Groq
-from tkinter import Tk, filedialog
-import subprocess
-from attempts import Attempt 
-
-attempt = Attempt()
-
-root = Tk()
-root.withdraw()
+import flet as ft
+import os
 
 class NonLoadedKeyError(Exception):
     pass
 
 class Key:
-    def __init__(self):
-        self.value = self.read()
-        print("Accessing to your API key...\n")
+    def __init__(self, key_value=None):
+        self.value = key_value
     
-    def read(self):
-        sources = {"1": self.read_from_file, "2": self.read_from_keyboard}
-        choice = attempt.safe_input("Choose a valid option :\n1. from .txt file   2. from keyboard").strip()
-        while choice != "1" and choice != "2":
-            choice = attempt.safe_input("Choose a valid option :\n1. from .txt file   2. from keyboard").strip()
-        source = sources.get(choice)
-        attempt.reset()
-        while True and attempt.should_retry():
-            attempt.increment()
-            try:
-                key = source()
-                if key:
-                    return key  
-                else:
-                    raise NonLoadedKeyError("Operation canceled: key not loaded!")
-            except Exception as e:
-                print(e, "\nRetry loading a key:\n")
-        if attempt.attempts == 3:
-            return None
-    
-    def read_from_file(self):
-        try:
-            key_file_path = filedialog.askopenfilename(title = "files", filetypes=[("files", "*.txt")])
-            if key_file_path:
-                result = subprocess.run(
-                    ["cat", key_file_path],
-                    check=True,
-                    text=True,
-                    capture_output=True
-                )
-                key = result.stdout.strip()
-            else:
-                raise NonLoadedKeyError("Operation canceled: key not loaded!")
-            return key
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError("API key not readed") from e
-    
-    def read_from_keyboard(self):
-        key = attempt.safe_input("\nEnter your valid key: ").strip()
-        return key
-        
     def get_value(self):
         return self.value
+    
+    @staticmethod
+    def from_text_field(text_field: ft.TextField):
+        if text_field and text_field.value:
+            return Key(text_field.value.strip())
+        return None
+    
+    @staticmethod
+    def from_file_picker(page: ft.Page, on_key_loaded):
+        from ui.components.file_open_dialog import FileOpenDialog
+        
+        def handle_file_selected(file_path):
+            if file_path and file_path.endswith('.txt'):
+                try:
+                    with open(file_path, 'r') as f:
+                        key_content = f.read().strip()
+                        key = Key(key_content)
+                        on_key_loaded(key)
+                except:
+                    on_key_loaded(None)
+            else:
+                on_key_loaded(None)
+        
+        FileOpenDialog.askopenfilename(
+            page=page,
+            on_file_selected=handle_file_selected,
+            dialog_title="Select API Key File",
+            file_types=[("Text files", "*.txt")]
+        )
 
 class Completion:
     def __init__(self, api_key):
@@ -76,11 +57,11 @@ class Completion:
         parameters["messages"] = messages
         return self.client.chat.completions.create(**parameters)
 
-
 def response(messages, key: Key):
     try:
+        if not key or not key.get_value():
+            return None
         completion = Completion(key.get_value())
         return completion.create(messages)
-    except Exception as e:
-        print(e)
+    except Exception:
         return None
