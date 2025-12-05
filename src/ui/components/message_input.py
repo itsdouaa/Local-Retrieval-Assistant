@@ -2,11 +2,10 @@ import flet as ft
 from .file_open_dialog import FileOpenDialog
 
 class MessageInput(ft.Container):
-    def __init__(self, on_send, on_file_selected=None, placeholder="Ask AI...", show_attach_button=True, **kwargs):
+    def __init__(self, on_send, placeholder="Ask AI...", show_attach_button=True, **kwargs):
         super().__init__(**kwargs)
         
         self.on_send = on_send
-        self.on_file_selected = on_file_selected
         self.placeholder = placeholder
         self.show_attach_button = show_attach_button
         
@@ -115,9 +114,6 @@ class MessageInput(ft.Container):
             self.context_tag = None
             self.context_container.visible = False
             self.text_field.hint_text = self.placeholder
-        
-        if self.on_file_selected:
-            self.on_file_selected(file_path)
         
         self.update()
     
