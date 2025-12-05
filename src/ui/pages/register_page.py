@@ -123,8 +123,13 @@ class RegisterPage(ft.Container):
         self.error_text.visible = True
         self.update()
     
-    def show_loading(self, show=True):
+    def show_loading(self, show=True, message=""):
         self.loading.visible = show
+        if message and hasattr(self.loading, 'content'):
+            if len(self.loading.content.controls) > 1:
+                text_control = self.loading.content.controls[1]
+                if hasattr(text_control, 'value'):
+                    text_control.value = message
         self.update()
     
     def clear_form(self):

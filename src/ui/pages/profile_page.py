@@ -17,7 +17,7 @@ class ProfilePage(ft.Container):
         
         self.display_username_field = StyledTextField(
             label="Display Username",
-            icon=ft.icons.PERSON
+            icon=ft.Icons.PERSON
         )
         
         self.bio_field = ft.TextField(
@@ -26,20 +26,20 @@ class ProfilePage(ft.Container):
             min_lines=3,
             max_lines=5,
             border_radius=10,
-            border_color=ft.colors.BLUE,
-            prefix_icon=ft.icons.SHORT_TEXT
+            border_color=ft.Colors.BLUE,
+            prefix_icon=ft.Icons.SHORT_TEXT
         )
         
         self.metadata_section = ft.Column(spacing=10)
         
         self.success_text = ft.Text(
-            color=ft.colors.GREEN,
+            color=ft.Colors.GREEN,
             size=12,
             visible=False
         )
         
         self.error_text = ft.Text(
-            color=ft.colors.RED,
+            color=ft.Colors.RED,
             size=12,
             visible=False
         )
@@ -58,10 +58,10 @@ class ProfilePage(ft.Container):
                     ft.Card(
                         content=ft.Container(
                             content=ft.Column([
-                                ft.Text("Personal Information", size=16, bold=True),
+                                ft.Text("Personal Information", size=16, weight=ft.FontWeight.BOLD),
                                 self.display_username_field,
                                 ft.Container(height=10),
-                                ft.Text("Bio", size=14, bold=True),
+                                ft.Text("Bio", size=14, weight=ft.FontWeight.BOLD),
                                 self.bio_field,
                                 ft.Container(height=5),
                                 self.success_text,
@@ -87,13 +87,13 @@ class ProfilePage(ft.Container):
                 ]),
                 padding=30,
                 border_radius=15,
-                bgcolor=ft.colors.WHITE,
+                bgcolor=ft.Colors.WHITE,
                 shadow=ft.BoxShadow(blur_radius=15),
                 expand=True
             )
         ], expand=True)
         
-        self.bgcolor = ft.colors.BLUE_50
+        self.bgcolor = ft.Colors.BLUE_50
         self.padding = 20
         self.expand = True
     
@@ -125,7 +125,7 @@ class ProfilePage(ft.Container):
         item = ft.Container(
             content=ft.Row([
                 ft.Text(f"{label}:", weight=ft.FontWeight.BOLD, width=150),
-                ft.Text(value, color=ft.colors.GREY_700, expand=True)
+                ft.Text(value, color=ft.Colors.GREY_700, expand=True)
             ]),
             padding=ft.padding.symmetric(vertical=5)
         )

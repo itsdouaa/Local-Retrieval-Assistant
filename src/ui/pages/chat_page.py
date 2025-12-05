@@ -59,7 +59,7 @@ class ChatPage(ft.Container):
         ])
         
         self.expand = True
-        self.bgcolor = ft.colors.WHITE
+        self.bgcolor = ft.Colors.WHITE
     
     def _toggle_sidebar(self):
         if self.sidebar.visible:

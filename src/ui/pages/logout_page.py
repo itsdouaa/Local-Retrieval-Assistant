@@ -22,9 +22,9 @@ class LogoutPage(ft.Container):
             ft.Container(
                 content=ft.Column([
                     ft.Icon(
-                        ft.icons.LOGOUT,
+                        ft.Icons.LOGOUT,
                         size=80,
-                        color=ft.colors.BLUE_400
+                        color=ft.Colors.BLUE_400
                     ),
                     ft.Text(
                         "Are you sure you want to log out?",
@@ -36,7 +36,7 @@ class LogoutPage(ft.Container):
                     ft.Text(
                         "You will need to log in again to continue.",
                         size=14,
-                        color=ft.colors.GREY_700,
+                        color=ft.Colors.GREY_700,
                         text_align=ft.TextAlign.CENTER
                     ),
                     ft.Container(height=40),
@@ -52,21 +52,21 @@ class LogoutPage(ft.Container):
                             on_click=self._handle_logout,
                             width=150,
                             height=45,
-                            bgcolor=ft.colors.RED_400,
-                            color=ft.colors.WHITE
+                            bgcolor=ft.Colors.RED_400,
+                            color=ft.Colors.WHITE
                         )
                     ], alignment=ft.MainAxisAlignment.CENTER, spacing=20)
                 ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                 padding=40,
                 border_radius=15,
-                bgcolor=ft.colors.WHITE,
+                bgcolor=ft.Colors.WHITE,
                 shadow=ft.BoxShadow(blur_radius=15),
                 width=500
             ),
             self.loading
         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, expand=True)
         
-        self.bgcolor = ft.colors.BLUE_50
+        self.bgcolor = ft.Colors.BLUE_50
         self.padding = 20
         self.expand = True
     
@@ -86,6 +86,11 @@ class LogoutPage(ft.Container):
         if user_info:
             self.header.update_user_info(user_info)
     
-    def show_loading(self, show=True):
+    def show_loading(self, show=True, message=""):
         self.loading.visible = show
+        if message and hasattr(self.loading, 'content'):
+            if len(self.loading.content.controls) > 1:
+                text_control = self.loading.content.controls[1]
+                if hasattr(text_control, 'value'):
+                    text_control.value = message
         self.update()
