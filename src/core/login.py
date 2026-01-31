@@ -2,8 +2,8 @@ import logging
 import hashlib
 import json
 import os
-import database
-from database import Database
+from . import database
+from .database import Database
 
 class Logger:
     def __init__(self, log_file='log_file.log'):

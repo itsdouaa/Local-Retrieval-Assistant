@@ -1,6 +1,6 @@
-import groq_API
-import context
-from database import Database
+from . import groq_API
+from . import context
+from .database import Database
 
 class Session:
     def __init__(self):

@@ -1,5 +1,5 @@
-import embeddings
-from database import Database
+from . import embeddings
+from .database import Database
 
 def save(opened_db, messages: list[dict]):
     history_table = opened_db.get_table("history")

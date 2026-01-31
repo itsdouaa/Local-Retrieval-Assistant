@@ -1,6 +1,6 @@
-import embeddings
-import history
-from database import Database
+from . import embeddings
+from . import history
+from .database import Database
 
 def retrieve(question, opened_db: Database = None):
     if not opened_db:
