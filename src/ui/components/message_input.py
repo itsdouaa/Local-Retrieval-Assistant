@@ -2,12 +2,20 @@ import flet as ft
 from .file_open_dialog import FileOpenDialog
 
 class MessageInput(ft.Container):
-    def __init__(self, on_send, placeholder="Ask AI...", show_attach_button=True, **kwargs):
-        super().__init__(**kwargs)
-        
+    def __init__(self, on_send=None, on_attach=None, placeholder="Ask AI...", show_attach_button=True, **kwargs):
+        # Store custom parameters
         self.on_send = on_send
+        self.on_attach = on_attach  # Add this line
         self.placeholder = placeholder
         self.show_attach_button = show_attach_button
+        
+        # Remove custom parameters from kwargs if they were passed there
+        kwargs.pop('on_send', None)
+        kwargs.pop('on_attach', None)
+        kwargs.pop('placeholder', None)
+        kwargs.pop('show_attach_button', None)
+        
+        super().__init__(**kwargs)
         
         self.attached_file_path = None
         self.context_tag = None

@@ -26,7 +26,7 @@ class Header(ft.Container):
             self.padding = ft.padding.symmetric(horizontal=15, vertical=0)
         
         self._build_content(show_menu_button, show_logout_button)
-    
+        
     def _build_content(self, show_menu_button, show_logout_button):
         left_controls = []
         
@@ -103,7 +103,15 @@ class Header(ft.Container):
         
         right_row = self.content.controls[1]
         
+        # Rechercher le bouton logout existant
+        logout_btn = None
+        for control in right_row.controls:
+            if isinstance(control, ft.IconButton) and control.icon == ft.Icons.LOGOUT:
+                logout_btn = control
+                break
+        
         if user_info:
+            # Mettre à jour ou ajouter le texte utilisateur
             user_text_found = False
             for control in right_row.controls:
                 if hasattr(control, 'text') and "👤" in str(control.text):
@@ -115,30 +123,34 @@ class Header(ft.Container):
                 self.user_text = ft.Text(
                     f"👤 {user_info}",
                     size=14,
-                    color=ft.colors.GREY_600
+                    color=ft.Colors.GREY_600
                 )
                 right_row.controls.insert(0, self.user_text)
-                
-                if not self.logout_button and len(right_row.controls) > 1:
-                    for control in right_row.controls:
-                        if isinstance(control, ft.IconButton) and control.icon == ft.Icons.LOGOUT:
-                            self.logout_button = control
-                            break
+            
+            # Ajouter le bouton logout s'il n'existe pas
+            if not logout_btn:
+                self.logout_button = ft.IconButton(
+                    icon=ft.Icons.LOGOUT,
+                    icon_size=20,
+                    tooltip="Se déconnecter",
+                    on_click=self._handle_logout_click
+                )
+                right_row.controls.append(self.logout_button)
         else:
+            # Supprimer le texte utilisateur
             right_row.controls = [
                 c for c in right_row.controls 
                 if not (hasattr(c, 'text') and "👤" in str(c.text))
             ]
             
-            if self.logout_button:
+            # Supprimer le bouton logout s'il existe
+            if logout_btn:
                 right_row.controls = [
                     c for c in right_row.controls 
-                    if c != self.logout_button
+                    if c != logout_btn
                 ]
                 self.logout_button = None
-        
-        self.update()
-    
+           
     def update_title(self, new_title):
         self.title = new_title
         self.title_text.value = new_title
