@@ -1,6 +1,6 @@
 import flet as ft
-from components.header import Header
-from components.input_field import StyledTextField
+from ..components import Header
+from ..components import StyledTextField
 
 class ProfilePage(ft.Container):
     def __init__(self):
@@ -119,8 +119,7 @@ class ProfilePage(ft.Container):
     def set_form_data(self, display_username, bio):
         self.display_username_field.value = display_username
         self.bio_field.value = bio
-        self.update()
-    
+        
     def add_metadata(self, label, value):
         item = ft.Container(
             content=ft.Row([
@@ -130,20 +129,17 @@ class ProfilePage(ft.Container):
             padding=ft.padding.symmetric(vertical=5)
         )
         self.metadata_section.controls.append(item)
-        self.update()
-    
+        
     def clear_metadata(self):
         self.metadata_section.controls.clear()
-        self.update()
-    
+        
     def show_success(self, message):
         self.success_text.value = message
         self.success_text.visible = True
         self.error_text.visible = False
-        self.update()
-    
+        
     def show_error(self, message):
         self.error_text.value = message
         self.error_text.visible = True
         self.success_text.visible = False
-        self.update()
+        

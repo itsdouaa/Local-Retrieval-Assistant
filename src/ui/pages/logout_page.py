@@ -1,6 +1,6 @@
 import flet as ft
-from components.header import Header
-from components.loading import LoadingSpinner
+from ..components import Header
+from ..components import LoadingSpinner
 
 class LogoutPage(ft.Container):
     def __init__(self):
@@ -93,4 +93,3 @@ class LogoutPage(ft.Container):
                 text_control = self.loading.content.controls[1]
                 if hasattr(text_control, 'value'):
                     text_control.value = message
-        self.update()

@@ -1,7 +1,7 @@
 import flet as ft
-from components.header import Header
-from components.message_input import MessageInput
-from components.history_drawer import HistoryDrawer
+from ..components import Header
+from ..components import MessageInput
+from ..components import HistoryDrawer
 
 class ChatPage(ft.Container):
     def __init__(self):
@@ -60,6 +60,7 @@ class ChatPage(ft.Container):
         
         self.expand = True
         self.bgcolor = ft.Colors.WHITE
+        
     
     def _toggle_sidebar(self):
         if self.sidebar.visible:
@@ -99,10 +100,11 @@ class ChatPage(ft.Container):
             self.on_new_chat()
     
     def _add_message(self, role, content):
-        from components.message_bubble import MessageBubble
+        from ..components.message_bubble import MessageBubble
         message = {"role": role, "content": content}
         self.chat_history.controls.append(MessageBubble(message))
         self.chat_history.update()
+        self.update()
     
     def set_callbacks(self, callbacks):
         self.on_send_message = callbacks.get("on_send_message")
@@ -118,19 +120,20 @@ class ChatPage(ft.Container):
     
     def add_message(self, role, content):
         self._add_message(role, content)
-    
+        
     def clear_messages(self):
         self.chat_history.controls.clear()
         self.chat_history.update()
-    
+        
     def add_history_item(self, chat_id, title, timestamp, preview):
         self.sidebar.add_chat_item(chat_id, title, timestamp, preview)
-    
+        
     def clear_history(self):
         self.sidebar.clear_history()
-    
+        
     def set_context(self, context_data, label):
         self.message_input.set_context(context_data, label)
-    
+        
     def enable_input(self, enabled=True):
         self.message_input.disable(not enabled)
+        
