@@ -1,24 +1,18 @@
 import flet as ft
-from .file_open_dialog import FileOpenDialog
+import tkinter as tk
+from tkinter import filedialog
+import os
 
 class MessageInput(ft.Container):
     def __init__(self, on_send=None, on_attach=None, placeholder="Ask AI...", show_attach_button=True, **kwargs):
-        # Store custom parameters
         self.on_send = on_send
-        self.on_attach = on_attach  # Add this line
+        self.on_attach = on_attach
         self.placeholder = placeholder
         self.show_attach_button = show_attach_button
-        
-        # Remove custom parameters from kwargs if they were passed there
-        kwargs.pop('on_send', None)
-        kwargs.pop('on_attach', None)
-        kwargs.pop('placeholder', None)
-        kwargs.pop('show_attach_button', None)
         
         super().__init__(**kwargs)
         
         self.attached_file_path = None
-        self.context_tag = None
         
         self.text_field = ft.TextField(
             hint_text=placeholder,
@@ -33,36 +27,35 @@ class MessageInput(ft.Container):
         )
         
         self._build_content()
-    
+
     def _build_content(self):
-        controls = [self.text_field]
+        buttons = []
         
         if self.show_attach_button:
-            controls.append(
-                ft.IconButton(
-                    icon=ft.Icons.ATTACH_FILE,
-                    on_click=self._handle_attach,
-                    tooltip="Attach file",
-                    icon_size=24
-                )
-            )
-        
-        controls.append(
-            ft.IconButton(
-                icon=ft.Icons.SEND,
-                on_click=lambda e: self._handle_send(),
-                tooltip="Send message",
-                icon_size=24
-            )
+            buttons.append(ft.IconButton(
+                icon=ft.Icons.ATTACH_FILE_ROUNDED,
+                icon_color=ft.Colors.GREY_600,
+                on_click=self._handle_attach_with_tkinter
+            ))
+            
+        buttons.append(ft.IconButton(
+            icon=ft.Icons.SEND_ROUNDED,
+            icon_color=ft.Colors.BLUE_600,
+            on_click=lambda e: self._handle_send()
+        ))
+
+        input_row = ft.Row(
+            controls=[
+                self.text_field,
+                *buttons
+            ],
+            vertical_alignment=ft.CrossAxisAlignment.END,
+            spacing=5
         )
-        
+
         self.content = ft.Column([
             self._build_context_display(),
-            ft.Row(
-                controls,
-                vertical_alignment=ft.CrossAxisAlignment.END,
-                spacing=5
-            )
+            input_row
         ], spacing=10)
     
     def _build_context_display(self):
@@ -82,26 +75,26 @@ class MessageInput(ft.Container):
         )
         return self.context_container
     
-    def _handle_send(self):
-        message = self.text_field.value.strip()
-        if message:
-            self.on_send(message, self.attached_file_path)
-            self.clear_input()
-    
-    def _handle_attach(self, e):
-        if e.page:
-            FileOpenDialog.askopenfilename(
-                page=e.page,
-                on_file_selected=self._handle_file_selected,
-                dialog_title="Attach File",
-                file_types=[
-                    ("Text files", "*.txt"),
-                    ("PDF files", "*.pdf"),
-                    ("Word documents", "*.docx"),
-                    ("Image files", "*.jpg *.jpeg *.png"),
-                    ("All files", "*.*")
-                ]
-            )
+    def _handle_attach_with_tkinter(self, e):
+        root = tk.Tk()
+        root.withdraw()
+        root.attributes("-topmost", True)
+        
+        file_path = filedialog.askopenfilename(
+            title="Sélectionner un fichier",
+            filetypes=[
+                ("Documents", "*.pdf *.docx *.txt"),
+                ("Images", "*.png *.jpg *.jpeg"),
+                ("Tous les fichiers", "*.*")
+            ]
+        )
+        
+        root.destroy()
+
+        if file_path:
+            self._handle_file_selected(file_path)
+            if self.on_attach:
+                self.on_attach(file_path)
     
     def _handle_file_selected(self, file_path):
         self.attached_file_path = file_path
@@ -124,14 +117,12 @@ class MessageInput(ft.Container):
             self.text_field.hint_text = self.placeholder
         
         self.update()
-    
+
     def _remove_file(self, e):
         self.attached_file_path = None
-        self.context_tag = None
         self.context_container.visible = False
-        self.text_field.hint_text = self.placeholder
         self.update()
-    
+
     def set_context(self, context_data, label="Attached context"):
         if context_data:
             self.context_tag = ft.Text(
@@ -154,11 +145,16 @@ class MessageInput(ft.Container):
     def has_file(self):
         return self.attached_file_path is not None
     
+    def _handle_send(self):
+        message = self.text_field.value.strip()
+        if message:
+            self.on_send(message, self.attached_file_path)
+            self.clear_input()
+    
     def clear_input(self):
         self.text_field.value = ""
         self._remove_file(None)
-        self.update()
-    
+     
     def focus(self):
         self.text_field.focus()
     
