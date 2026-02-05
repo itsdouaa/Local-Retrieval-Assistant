@@ -1,9 +1,11 @@
 from . import groq_API
+from .groq_API import Key
 from . import context
 from .database import Database
 
 class Session:
-    def __init__(self):
+    def __init__(self, api_key=None):
+        self.api_key = Key(api_key)
         self.messages = Messages()
         self._is_active = False
     
@@ -20,6 +22,9 @@ class Session:
         if not self._is_active:
             return
         
+        if not self.api_key:
+            raise ValueError("API key not set")
+        
         context_text = ""
         if db:
             context_text = context.retrieve(question, db)
@@ -27,34 +32,50 @@ class Session:
         prompt = Prompt.create(question, context_text, file_content)
         self.messages.add("user", prompt.format)
         
-        key = groq_API.Key().get_value()
-        if not key:
-            if self.on_response:
-                self.on_response("assistant", "Error: No API key configured")
-            return
-        
-        if self.on_response:
-            self.on_response("user", question)
-        
         try:
-            completion = groq_API.response(self.messages.get_last_three(), key)
-            full_reply = ""
-            for chunk in completion:
-                content = chunk.choices[0].delta.content or ""
-                full_reply += content
+            completion = groq_API.response(self.messages.get_last_three(), self.api_key)
+            
+            if completion is None:
+                error_msg = "Failed to get response from API. Please check your API key and connection."
+                self.messages.add("assistant", error_msg)
                 if self.on_response:
-                    self.on_response("assistant_chunk", content)
+                    self.on_response("assistant", error_msg)
+                return None
+            
+            if not hasattr(completion, '__iter__'):
+                error_msg = f"Invalid response from API. Expected iterable, got {type(completion)}"
+                self.messages.add("assistant", error_msg)
+                if self.on_response:
+                    self.on_response("assistant", error_msg)
+                return None
+            
+            full_reply = ""
+            try:
+                for chunk in completion:
+                    if hasattr(chunk, 'choices') and chunk.choices:
+                        content = chunk.choices[0].delta.content or ""
+                        full_reply += content
+                        if self.on_response:
+                            self.on_response("assistant_chunk", content)
+            except StopIteration:
+                pass
+            except Exception as e:
+                print(f"Error processing stream: {e}")
             
             self.messages.add("assistant", full_reply)
             if self.on_response:
                 self.on_response("assistant_complete", full_reply)
             
             return full_reply
-        except Exception:
+            
+        except Exception as e:
+            error_msg = f"Error connecting to API: {str(e)}"
+            print(f"Session error: {error_msg}")
+            self.messages.add("assistant", error_msg)
             if self.on_response:
-                self.on_response("assistant", "Error connecting to API")
+                self.on_response("assistant", error_msg)
             return None
-
+    
 class Messages:
     def __init__(self):
         self._messages = []

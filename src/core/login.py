@@ -2,7 +2,6 @@ import logging
 import hashlib
 import json
 import os
-from . import database
 from .database import Database
 
 class Logger:
@@ -41,10 +40,15 @@ class Logger:
             self.logger.debug(message)
 
 class User:
-    def __init__(self, username: str = "", password: str = "", path: str = ""):
+    def __init__(self, username: str = "", password: str = "", config_path: str = ""):
         self.username = username
         self.password = self.hash_password(password)
-        self.db = Database(path)
+        self.config_path = config_path
+        self.config_data = {}
+        
+        # Load config if path exists
+        if config_path and os.path.exists(config_path):
+            self.load_config()
     
     def set_username(self, username: str = ""):
         self.username = username.strip()
@@ -69,17 +73,80 @@ class User:
     def hash_password(self, password):
         return hashlib.sha256(password.encode()).hexdigest()
     
-    def set_database_open(self, path: str = "", page=None):
+    def set_config_path(self, config_path: str = ""):
+        self.config_path = config_path
+        if config_path and os.path.exists(config_path):
+            return self.load_config()
+        return True
+    
+    def load_config(self):
+        """Load configuration from file"""
         try:
-            self.db.open_existing(path=path, page=page)
+            if self.config_path and os.path.exists(self.config_path):
+                with open(self.config_path, 'r') as f:
+                    self.config_data = json.load(f)
+                return True
+            return False
+        except Exception as e:
+            print(f"Error loading config: {e}")
+            return False
+    
+    def save_config(self, db_path="", api_key=""):
+        """Save configuration to file"""
+        try:
+            if db_path:
+                self.config_data["db_path"] = db_path
+            if api_key:
+                self.config_data["api_key"] = api_key
+            
+            # Ensure config directory exists
+            os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
+            
+            with open(self.config_path, 'w') as f:
+                json.dump(self.config_data, f, indent=4)
+            return True
+        except Exception as e:
+            print(f"Error saving config: {e}")
+            return False
+    
+    def get_db_path(self):
+        """Get database path from config"""
+        return self.config_data.get("db_path", "")
+    
+    def get_api_key(self):
+        """Get API key from config"""
+        return self.config_data.get("api_key", "")
+    
+    def set_database_open(self, db_path: str = "", page=None):
+        """Open database using path from config or parameter"""
+        try:
+            # Use provided path or get from config
+            path_to_open = db_path or self.get_db_path()
+            if not path_to_open:
+                return False
+            
+            self.db = Database()
+            self.db.open_existing(path=path_to_open, page=page)
+            
+            # Update config if new path provided
+            if db_path:
+                self.save_config(db_path=db_path)
+            
             return True
         except Exception:
             return False
     
-    def set_database_create(self, page=None):
+    def set_database_create(self, page=None, db_path=""):
+        """Create new database"""
         try:
+            self.db = Database()
             self.db.create(page=page)
-            return True
+            
+            # Save the new database path to config
+            if self.db.get_path():
+                self.save_config(db_path=self.db.get_path())
+                return True
+            return False
         except Exception:
             return False
 
@@ -117,41 +184,6 @@ class System:
             self.logger.error(f"Error when saving the users: {e}")
             return False
     
-    def register(self, username, password, confirm_password, db_path=None, page=None):
-        try:
-            if not username or not username.strip():
-                return False, "Username is required", None
-            
-            if not password:
-                return False, "Password is required", None
-            
-            if password != confirm_password:
-                return False, "Passwords do not match", None
-            
-            if username in self.users:
-                self.logger.warning(f"Registration attempt with existing username: {username}")
-                return False, "Username already exists", None
-            
-            hashed_password = hashlib.sha256(password.encode()).hexdigest()
-            
-            if not db_path:
-                user_db = Database()
-                user_db.create(page=page)
-                db_path = user_db.get_path()
-            
-            self.users[username] = [hashed_password, db_path]
-            if self.save_users():
-                self.logger.info(f"New user registered: {username}")
-                return True, "Registration successful!", db_path
-            else:
-                if username in self.users:
-                    del self.users[username]
-                return False, "Failed to save user data", None
-                
-        except Exception as e:
-            self.logger.error(f"Registration error for {username}: {e}")
-            return False, f"Registration failed: {str(e)}", None
-    
     def login(self, username, password):
         try:
             if username not in self.users:
@@ -165,14 +197,44 @@ class System:
                 self.logger.warning(f"Failed login attempt for: {username}")
                 return False, "Invalid password", None
             
-            db_path = self.users[username][1] if len(self.users[username]) > 1 else None
+            # Get config_path if it exists (index 1)
+            config_path = self.users[username][1] if len(self.users[username]) > 1 else None
             
             self.logger.info(f"Login successful with: {username}")
-            return True, "Login successful!", db_path
+            return True, "Login successful!", config_path
             
         except Exception as e:
             self.logger.error(f"Login error for {username}: {e}")
             return False, f"Login failed: {str(e)}", None
+    
+    def register(self, username, password, confirm_password, page=None):
+        try:
+            if not username or not username.strip():
+                return False, "Username is required"
+            
+            if not password:
+                return False, "Password is required"
+            
+            if password != confirm_password:
+                return False, "Passwords do not match"
+            
+            if username in self.users:
+                self.logger.warning(f"Registration attempt with existing username: {username}")
+                return False, "Username already exists"
+            
+            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+            self.users[username] = [hashed_password]
+            
+            if self.save_users():
+                self.logger.info(f"New user registered: {username}")
+                return True, "Registration successful!"
+            else:
+                if username in self.users:
+                    del self.users[username]
+                return False, "Failed to save user data"    
+        except Exception as e:
+            self.logger.error(f"Registration error for {username}: {e}")
+            return False, f"Registration failed: {str(e)}"
     
     def change_password(self, username, current_password, new_password, confirm_password):
         try:
@@ -197,24 +259,124 @@ class System:
         except Exception as e:
             self.logger.error(f"Password change error for {username}: {e}")
             return False, f"Password change failed: {str(e)}"
-            
-    def get_user_database_path(self, username):
-        if username in self.users and len(self.users[username]) > 1:
-            return self.users[username][1]
-        return None
     
     def user_exists(self, username):
         return username in self.users
     
-    def create_user_database(self, username, page=None):
+    def set_user_config_path(self, username, config_path):
+        """
+        Set the configuration file path for a user
+        config_path: Path to the JSON file containing db_path and api_key
+        """
         try:
-            user_db = Database()
-            user_db.create(page=page)
-            db_path = user_db.get_path()
-            if username in self.users:
-                self.users[username].append(db_path)
-                self.save_users()
-            return db_path
+            if username not in self.users:
+                self.logger.warning(f"Attempt to set config for non-existent user: {username}")
+                return False
+            
+            # Ensure the users[username] list has at least one element (password)
+            if len(self.users[username]) == 0:
+                self.users[username] = [self.users[username]]
+            
+            # If we already have a config_path (index 1), update it
+            if len(self.users[username]) > 1:
+                self.users[username][1] = config_path
+            else:
+                # Add config_path as second element
+                self.users[username].append(config_path)
+            
+            # Save changes
+            if self.save_users():
+                self.logger.info(f"Updated config path for {username}: {config_path}")
+                return True
+            else:
+                self.logger.error(f"Failed to save config path for {username}")
+                return False
+                
         except Exception as e:
-            self.logger.error(f"Failed to create database for {username}: {e}")
+            self.logger.error(f"Failed to set config path for {username}: {e}")
+            return False
+    
+    def get_user_config_path(self, username):
+        """
+        Get the configuration file path for a user
+        Returns: config_path if exists, None otherwise
+        """
+        try:
+            if username not in self.users:
+                return None
+            
+            if len(self.users[username]) > 1:
+                config_path = self.users[username][1]
+                if os.path.exists(config_path):
+                    return config_path
+                else:
+                    self.logger.warning(f"Config file doesn't exist: {config_path}")
+                    return None
             return None
+            
+        except Exception as e:
+            self.logger.error(f"Error getting config path for {username}: {e}")
+            return None
+    
+    def load_user_config(self, username):
+        """
+        Load user configuration from config file
+        Returns: dictionary with config data, None if error
+        """
+        try:
+            config_path = self.get_user_config_path(username)
+            if not config_path:
+                return None
+            
+            with open(config_path, 'r') as f:
+                config_data = json.load(f)
+            
+            return config_data
+            
+        except Exception as e:
+            self.logger.error(f"Error loading config for {username}: {e}")
+            return None
+    
+    def save_user_config(self, username, config_data):
+        """
+        Save user configuration to config file
+        config_data: dictionary containing db_path and api_key
+        Returns: True if successful, False otherwise
+        """
+        try:
+            config_dir = os.path.dirname(self.get_default_config_path(username))
+            os.makedirs(config_dir, exist_ok=True)
+            
+            config_path = self.get_user_config_path(username)
+            if not config_path:
+                config_path = self.get_default_config_path(username)
+                self.set_user_config_path(username, config_path)
+            
+            # Save config data
+            with open(config_path, 'w') as f:
+                json.dump(config_data, f, indent=4)
+            
+            self.logger.info(f"Saved config for {username} to {config_path}")
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"Error saving config for {username}: {e}")
+            return False
+    
+    def get_default_config_path(self, username):
+        """
+        Get default configuration file path for a user
+        """
+        config_dir = os.path.join(os.path.expanduser("~"), ".rag_assistant", "users")
+        return os.path.join(config_dir, f"{username}_config.json")
+    
+    def create_user_config(self, username, db_path, api_key):
+        """
+        Create and save user configuration
+        """
+        config_data = {
+            "db_path": db_path,
+            "api_key": api_key,
+            "created_at": datetime.datetime.now().isoformat()
+        }
+        return self.save_user_config(username, config_data)

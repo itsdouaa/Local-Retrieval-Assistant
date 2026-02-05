@@ -12,6 +12,9 @@ class Key:
     def get_value(self):
         return self.value
     
+    def set_value(self, key_value: str):
+        self.value = key_value()
+    
     @staticmethod
     def from_text_field(text_field: ft.TextField):
         if text_field and text_field.value:
@@ -62,6 +65,7 @@ def response(messages, key: Key):
         if not key or not key.get_value():
             return None
         completion = Completion(key.get_value())
-        return completion.create(messages)
+        result = completion.create(messages)
+        return result
     except Exception:
         return None
