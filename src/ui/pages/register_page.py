@@ -33,11 +33,6 @@ class RegisterPage(ft.Container):
             is_password=True
         )
         
-        self.terms_checkbox = ft.Checkbox(
-            label="I agree to Terms and Privacy Policy",
-            value=False
-        )
-        
         self.error_text = ft.Text(
             color=ft.Colors.RED,
             size=12,
@@ -68,8 +63,6 @@ class RegisterPage(ft.Container):
                     self.password_field,
                     ft.Container(height=10),
                     self.confirm_field,
-                    ft.Container(height=10),
-                    self.terms_checkbox,
                     ft.Container(height=5),
                     self.error_text,
                     ft.Container(height=20),
@@ -105,10 +98,9 @@ class RegisterPage(ft.Container):
         username = self.username_field.value.strip()
         password = self.password_field.value.strip()
         confirm = self.confirm_field.value.strip()
-        terms = self.terms_checkbox.value
         
         if self.on_register:
-            self.on_register(username, password, confirm, terms)
+            self.on_register(username, password, confirm)
     
     def _handle_login_click(self):
         if self.on_login_click:
@@ -121,6 +113,7 @@ class RegisterPage(ft.Container):
     def show_error(self, message):
         self.error_text.value = message
         self.error_text.visible = True
+        self.update()
         
     def show_loading(self, show=True, message=""):
         self.loading.visible = show
@@ -129,11 +122,11 @@ class RegisterPage(ft.Container):
                 text_control = self.loading.content.controls[1]
                 if hasattr(text_control, 'value'):
                     text_control.value = message
+        self.update()
         
     def clear_form(self):
         self.username_field.value = ""
         self.password_field.value = ""
         self.confirm_field.value = ""
-        self.terms_checkbox.value = False
         self.error_text.visible = False
         self.loading.visible = False

@@ -11,8 +11,9 @@ class ProfilePage(ft.Container):
         
         self.header = Header(
             title="Profile",
-            show_menu_button=True,
-            on_menu_click=lambda: self._handle_back_click()
+            show_menu_button=False,
+            show_back_button=True,
+            on_back_click=lambda: self._handle_back_click()
         )
         
         self.display_username_field = StyledTextField(

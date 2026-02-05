@@ -104,7 +104,8 @@ class LoginPage(ft.Container):
     def show_error(self, message):
         self.error_text.value = message
         self.error_text.visible = True
-        
+        self.update()
+    
     def show_loading(self, show=True, message=""):
         self.loading.visible = show
         if message and hasattr(self.loading, 'content'):
@@ -112,7 +113,8 @@ class LoginPage(ft.Container):
                 text_control = self.loading.content.controls[1]
                 if hasattr(text_control, 'value'):
                     text_control.value = message
-        
+        self.update()
+    
     def clear_form(self):
         self.username_field.value = ""
         self.password_field.value = ""
